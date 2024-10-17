@@ -1,7 +1,10 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
+import './LoginModal.css'; // Import the new CSS file
 
 const LoginModal = () => {
   const [role, setRole] = useState('user'); // Default role is 'user'
+  const navigate = useNavigate(); // Initialize navigate for redirection
 
   const handleRoleChange = (newRole) => {
     setRole(newRole);
@@ -10,10 +13,32 @@ const LoginModal = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Close the modal and remove the backdrop
+    const modal = document.getElementById('loginModal');
+    const modalBackdrop = document.querySelector('.modal-backdrop');
+
+    if (modal) {
+      modal.classList.remove('show');
+      modal.style.display = 'none';
+    }
+
+    if (modalBackdrop) {
+      modalBackdrop.remove(); // Remove the backdrop
+    }
+
+    // Remove modal-open class and reset any body padding added by the modal
+    document.body.classList.remove('modal-open');
+    document.body.style.paddingRight = '';
+
+    // Based on the role, redirect to the respective dashboard
+    if (role === 'user') {
+      navigate('/user-dashboard');
+    } else if (role === 'barber') {
+      navigate('/barber-dashboard');
+    }
+
     // Placeholder for login logic, for now, log the role
     console.log(`Logged in as: ${role}`);
-
-    // In the future, redirect to respective dashboard based on the role
   };
 
   return (
@@ -25,19 +50,16 @@ const LoginModal = () => {
             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div className="modal-body">
-            <div className="row mb-3">
-              {/* Role selection buttons with reduced height */}
-              <div 
-                className={`col-6 py-2 text-center ${role === 'user' ? 'bg-primary text-white' : 'bg-light'}`} 
+            <div className="row mb-3 role-selection">
+              <div
+                className={`col-6 text-center ${role === 'user' ? 'role-active' : 'role-inactive'}`}
                 onClick={() => handleRoleChange('user')}
-                style={{ cursor: 'pointer' }}
               >
                 <h5>User</h5>
               </div>
-              <div 
-                className={`col-6 py-2 text-center ${role === 'barber' ? 'bg-primary text-white' : 'bg-light'}`} 
+              <div
+                className={`col-6 text-center ${role === 'barber' ? 'role-active' : 'role-inactive'}`}
                 onClick={() => handleRoleChange('barber')}
-                style={{ cursor: 'pointer' }}
               >
                 <h5>Barber</h5>
               </div>
