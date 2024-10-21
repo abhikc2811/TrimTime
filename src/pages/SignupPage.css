@@ -1,0 +1,39 @@
+.signup-page-container {
+  margin: 0 auto;
+  max-width: 500px;
+  padding: 10px;
+  border: 2px solid white;
+  border-radius: 10px;
+}
+
+.role-selection-container-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; 
+}
+
+.role-card {
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.2s;
+}
+
+.role-card:hover {
+  background-color: #d3d3d3;
+  border: 1px solid black;
+}
+
+.selected {
+  border: 2px solid blue; 
+}
+
+.container-box {
+  height: 100vh;
+  padding: 20px;
+  background: url("https://media.istockphoto.com/id/1432866151/video/transparent-color-liquid-together.jpg?s=640x640&k=20&c=aoXPeLGTXZLVTPeJi3B8HXyFwbWNPo6yqgon2xt_aJU=");
+  background-size: cover;
+}
+
+h1 {
+  text-align: center;
+}
