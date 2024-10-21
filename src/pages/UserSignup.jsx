@@ -30,6 +30,18 @@ const UserSignup = () => {
         <div className="signup-page-container">
         <h3 className="mb-4">User Registration</h3>
 
+        <Button className="btn btn-light btn-lg w-100" type="submit">
+          <img 
+            src="https://w7.pngwing.com/pngs/326/85/png-transparent-google-logo-google-text-trademark-logo-thumbnail.png" 
+            alt="Google logo" 
+            width="20" 
+            height="20" 
+            className="me-2" 
+            />
+          Continue with Google
+        </Button>
+
+
         <Form onSubmit={handleSubmit}>
             <Form.Group>
             <Form.Label>Name</Form.Label>
