@@ -24,7 +24,7 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="container-box">
+    <div className="container-box signup">
       <div className="back-arrow" onClick={handleBackClick}>
           <BsArrowLeft size={24} /> {/* Icon */}
       </div>

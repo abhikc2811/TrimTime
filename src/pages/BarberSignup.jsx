@@ -27,6 +27,7 @@ const BarberSignup = () => {
   };
 
   return (
+    <div className="container-box">
     <div className="signup-page-container">
       <h3 className="my-4">Barber Registration</h3>
 
@@ -116,6 +117,7 @@ const BarberSignup = () => {
           Sign Up
         </Button>
       </Form>
+    </div>
     </div>
   );
 };

@@ -27,10 +27,13 @@
   border: 2px solid blue; 
 }
 
-.container-box {
+.signup {
   height: 100vh;
+} 
+
+.container-box {
   padding: 20px;
-  background: url("https://media.istockphoto.com/id/1432866151/video/transparent-color-liquid-together.jpg?s=640x640&k=20&c=aoXPeLGTXZLVTPeJi3B8HXyFwbWNPo6yqgon2xt_aJU=");
+  background: url("https://media.istockphoto.com/id/1432866151/video/transparent-color-liquid-together.jpg?s=640x640&k=20&c=aoXPeLGTXZLVTPeJi3B8HXyFwbWNPo6yqgon2xt_aJU=") no-repeat center center;
   background-size: cover;
 }
 
