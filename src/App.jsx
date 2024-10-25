@@ -3,6 +3,8 @@ import HomePage from './pages/HomePage'; // Import the HomePage
 import UserDashboard from './pages/UserDashboard'; // Import User Dashboard
 import BarberDashboard from './pages/BarberDashboard'; // Import Barber Dashboard
 import SignupPage from './pages/SignupPage'; // Import Signup Page
+import UserSignup from './pages/UserSignup';
+import BarberSignup from './pages/BarberSignup';
 
 function App() {
   return (
@@ -21,6 +23,12 @@ function App() {
           
           {/* Signup Page */}
           <Route path="/signup" element={<SignupPage />} />
+
+          {/* UserSignup*/}
+          <Route path="/user-signup" element={<UserSignup />} />
+
+          {/* BarberSignup */}
+          <Route path="/barber-signup" element={<BarberSignup />} />
         </Routes>
       </div>
     </Router>
