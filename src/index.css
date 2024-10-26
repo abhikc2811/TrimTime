@@ -61,6 +61,10 @@ button:focus-visible {
   object-fit: cover;    
 }
 
+.search {
+  border-radius: 20px !important;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
