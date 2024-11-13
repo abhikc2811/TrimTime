@@ -13,4 +13,13 @@
     background-color: #f8f9fa; /* Bootstrap light color */
     cursor: pointer;
   }
+
+  .register {
+    padding: 10px 0 0;
+  }
+
+  .register a {
+    text-decoration: none;
+    padding: 10px;
+  }
   

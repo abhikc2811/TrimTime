@@ -78,6 +78,9 @@ const LoginModal = () => {
                 Login as {role.charAt(0).toUpperCase() + role.slice(1)}
               </button>
             </form>
+            <div className="register">
+              <a href="/signup">New User? Register Here</a>
+            </div>
           </div>
         </div>
       </div>

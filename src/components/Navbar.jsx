@@ -1,5 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // Use Link for navigation
+import { Link } from 'react-router-dom';
+import { FaUserCircle } from 'react-icons/fa';
 
 const Navbar = () => {
   return (
@@ -17,10 +18,11 @@ const Navbar = () => {
           </ul>
           <div className="d-flex">
             {/* Login still opens the modal */}
-            <button className="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+            <button className="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#loginModal">
+              <FaUserCircle size={24} />
+               &nbsp;&nbsp;Login
+            </button>
 
-            {/* Sign Up redirects to the signup page */}
-            <Link to="/signup" className="btn btn-primary">Sign Up</Link>
           </div>
         </div>
       </div>
