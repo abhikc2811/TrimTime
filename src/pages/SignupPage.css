@@ -35,6 +35,7 @@
   padding: 20px;
   background: url("https://media.istockphoto.com/id/1432866151/video/transparent-color-liquid-together.jpg?s=640x640&k=20&c=aoXPeLGTXZLVTPeJi3B8HXyFwbWNPo6yqgon2xt_aJU=") no-repeat center center;
   background-size: cover;
+  min-height: 100vh;
 }
 
 h1 {
