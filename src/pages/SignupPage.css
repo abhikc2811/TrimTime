@@ -41,3 +41,31 @@
 h1 {
   text-align: center;
 }
+
+.d-flex .btn {
+  flex-shrink: 0;
+  width: 120px; /* Adjust width as needed */
+  text-align: center;
+}
+
+.or-separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.or-separator .line {
+  flex: 1;
+  height: 1px;
+  background-color: #666;
+  border: none;
+}
+
+.or-separator .or-text {
+  margin: 0 10px;
+  font-size: 16px;
+  color: #666;
+  font-weight: bold;
+  white-space: nowrap;
+}
