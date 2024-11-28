@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Form, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import './SignupPage.css';
 import { FcGoogle } from 'react-icons/fc';
 import { FaTwitter, FaFacebook } from 'react-icons/fa';
@@ -8,6 +9,7 @@ const UserSignup = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false); // New state to handle OTP sent logic
+  const navigate = useNavigate();
 
   const handlePhoneChange = (e) => {
     setPhoneNumber(e.target.value);
@@ -20,20 +22,13 @@ const UserSignup = () => {
   const handleGetOtp = (e) => {
     e.preventDefault();
     console.log('Phone Number:', phoneNumber);
-    // Simulating OTP send logic here
-    setOtpSent(true); // Set OTP sent to true when Get OTP is clicked
+    setOtpSent(true); 
   };
 
   const handleVerifyOtp = (e) => {
     e.preventDefault();
     console.log('Entered OTP:', otp);
-    // Add OTP verification logic here
-    alert('OTP Verified!');
-  };
-
-  const handleRegenerateOtp = () => {
-    setOtpSent(false); // Reset OTP sent state when regenerating OTP
-    setOtp(''); // Clear OTP input field
+    navigate('/userprofile');
   };
 
   return (
@@ -85,9 +80,6 @@ const UserSignup = () => {
                 </div>
               </Form.Group>
             </Form>
-            <Button variant="link" onClick={handleRegenerateOtp} className="mt-2">
-              Regenerate OTP
-            </Button>
           </div>
         )}
 
@@ -103,14 +95,6 @@ const UserSignup = () => {
         >
           <FcGoogle size={20} className="me-2" />
           Continue with Google
-        </Button>
-
-        <Button
-          className="btn-light btn-lg w-100 mb-3 twitter-button"
-          type="submit"
-        >
-          <FaTwitter size={20} className="me-2" style={{ color: '#018ae5' }} />
-          Continue with Twitter
         </Button>
 
         <Button

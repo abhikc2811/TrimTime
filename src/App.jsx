@@ -5,6 +5,7 @@ import BarberDashboard from './pages/BarberDashboard'; // Import Barber Dashboar
 import SignupPage from './pages/SignupPage'; // Import Signup Page
 import UserSignup from './pages/UserSignup';
 import BarberSignup from './pages/BarberSignup';
+import UserProfile from './pages/UserProfile';
 
 function App() {
   return (
@@ -29,6 +30,10 @@ function App() {
 
           {/* BarberSignup */}
           <Route path="/barber-signup" element={<BarberSignup />} />
+
+          {/* userprofile */}
+          <Route path="/userprofile" element={<UserProfile />} />
+
         </Routes>
       </div>
     </Router>
