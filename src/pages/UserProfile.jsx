@@ -33,7 +33,7 @@ const EditProfile = () => {
     }
     console.log("Profile Updated:", formData);
     // Redirect to the user-dashboard
-    navigate("/user-dashboard");
+    navigate("/user");
   };
 
   return (

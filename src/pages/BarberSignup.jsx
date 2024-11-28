@@ -1,125 +1,112 @@
 import React, { useState } from 'react';
 import { Form, Button } from 'react-bootstrap';
-import './SignupPage.css'; // Assuming this exists
+import { useNavigate } from 'react-router-dom';
+import './SignupPage.css';
+import { FcGoogle } from 'react-icons/fc';
+import { FaTwitter, FaFacebook } from 'react-icons/fa';
 
-const BarberSignup = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    barberShopName: '',
-    experience: '',
-    servicesOffered: '',
-    location: '',
-  });
+const UserSignup = () => {
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false); // New state to handle OTP sent logic
+  const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const handlePhoneChange = (e) => {
+    setPhoneNumber(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  const handleOtpChange = (e) => {
+    setOtp(e.target.value);
+  };
+
+  const handleGetOtp = (e) => {
     e.preventDefault();
-    console.log('Barber Signup Data:', formData);
-    // Add your form submission logic here
+    console.log('Phone Number:', phoneNumber);
+    setOtpSent(true); 
+  };
+
+  const handleVerifyOtp = (e) => {
+    e.preventDefault();
+    console.log('Entered OTP:', otp);
+    navigate('/barberprofile');
   };
 
   return (
     <div className="container-box">
-    <div className="signup-page-container">
-      <h3 className="my-4">Barber Registration</h3>
+      <h1>TrimTime</h1>
+      <div className="signup-page-container">
+        <h3 className="mb-4">Barber Registration</h3>
 
-      <Form onSubmit={handleSubmit}>
-        <Form.Group>
-          <Form.Label>Name</Form.Label>
-          <Form.Control
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="Enter your name"
-            required
-          />
-        </Form.Group>
+        <div className="mb-3">
+          <Form onSubmit={handleGetOtp}>
+            <Form.Group>
+              <Form.Label>Phone Number</Form.Label>
+              <div className="d-flex">
+                <Form.Control
+                  type="tel"
+                  name="phone"
+                  value={phoneNumber}
+                  onChange={handlePhoneChange}
+                  placeholder="Enter your phone number"
+                  required
+                  className="me-2 form-control-lg"
+                />
+                <Button variant="primary" type="submit">
+                  Get OTP
+                </Button>
+              </div>
+            </Form.Group>
+          </Form>
+        </div>
 
-        <Form.Group>
-          <Form.Label>Email</Form.Label>
-          <Form.Control
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="Enter your email"
-            required
-          />
-        </Form.Group>
+        {otpSent && (
+          <div className="mb-3">
+            <Form onSubmit={handleVerifyOtp}>
+              <Form.Group>
+                <Form.Label>Enter OTP</Form.Label>
+                <div className="d-flex">
+                  <Form.Control
+                    type="text"
+                    name="otp"
+                    value={otp}
+                    onChange={handleOtpChange}
+                    placeholder="Enter the OTP"
+                    required
+                    className="me-2 form-control-lg"
+                  />
+                  <Button variant="primary" type="submit">
+                    Verify
+                  </Button>
+                </div>
+              </Form.Group>
+            </Form>
+          </div>
+        )}
 
-        <Form.Group>
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="Enter your password"
-            required
-          />
-        </Form.Group>
+        <div className="or-separator">
+          <hr className="line" />
+          <span className="or-text">OR</span>
+          <hr className="line" />
+        </div>
 
-        <Form.Group>
-          <Form.Label>Barber's Shop Name</Form.Label>
-          <Form.Control
-            type="text"
-            name="barberShopName"
-            value={formData.barberShopName}
-            onChange={handleChange}
-            placeholder="Enter your shop name"
-            required
-          />
-        </Form.Group>
-
-        <Form.Group>
-          <Form.Label>Experience (Years)</Form.Label>
-          <Form.Control
-            type="number"
-            name="experience"
-            value={formData.experience}
-            onChange={handleChange}
-            placeholder="Enter your experience"
-          />
-        </Form.Group>
-
-        <Form.Group>
-          <Form.Label>Services Offered</Form.Label>
-          <Form.Control
-            type="text"
-            name="servicesOffered"
-            value={formData.servicesOffered}
-            onChange={handleChange}
-            placeholder="Describe the services you offer"
-          />
-        </Form.Group>
-
-        <Form.Group>
-          <Form.Label>Location</Form.Label>
-          <Form.Control
-            type="text"
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-            placeholder="Enter your shop location"
-          />
-        </Form.Group>
-
-        <Button variant="primary" type="submit" className="mt-3">
-          Sign Up
+        <Button
+          className="btn btn-light btn-lg w-100 mb-3"
+          type="submit"
+        >
+          <FcGoogle size={20} className="me-2" />
+          Continue with Google
         </Button>
-      </Form>
-    </div>
+
+        <Button
+          className="facebook-button btn btn-light btn-lg w-100 mb-4"
+          type="submit"
+        >
+          <FaFacebook size={20} className="me-2" style={{ color: '#145dbf' }} />
+          Continue with Facebook
+        </Button>
+      </div>
     </div>
   );
 };
 
-export default BarberSignup;
+export default UserSignup;
