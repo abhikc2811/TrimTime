@@ -3,26 +3,36 @@ import { Form, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import './SignupPage.css';
 import { FcGoogle } from 'react-icons/fc';
-import { FaTwitter, FaFacebook } from 'react-icons/fa';
+import { FaFacebook } from 'react-icons/fa';
 
 const UserSignup = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
-  const [otpSent, setOtpSent] = useState(false); // New state to handle OTP sent logic
+  const [otpSent, setOtpSent] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(''); // State for validation error
   const navigate = useNavigate();
 
   const handlePhoneChange = (e) => {
-    setPhoneNumber(e.target.value);
-  };
-
-  const handleOtpChange = (e) => {
-    setOtp(e.target.value);
+    const value = e.target.value;
+    if (/^\d*$/.test(value)) {
+      // Allow only numeric values
+      setPhoneNumber(value);
+      setErrorMessage(''); // Clear error on valid input
+    }
   };
 
   const handleGetOtp = (e) => {
     e.preventDefault();
+    if (phoneNumber.length !== 10) {
+      setErrorMessage('Please enter a valid 10-digit phone number.');
+      return;
+    }
     console.log('Phone Number:', phoneNumber);
-    setOtpSent(true); 
+    setOtpSent(true);
+  };
+
+  const handleOtpChange = (e) => {
+    setOtp(e.target.value);
   };
 
   const handleVerifyOtp = (e) => {
@@ -50,12 +60,16 @@ const UserSignup = () => {
                   placeholder="Enter your phone number"
                   required
                   className="me-2 form-control-lg"
+                  maxLength={10} // Limit to 10 characters
                 />
                 <Button variant="primary" type="submit">
                   Get OTP
                 </Button>
               </div>
             </Form.Group>
+            {errorMessage && (
+              <p className="text-danger mt-2">{errorMessage}</p>
+            )}
           </Form>
         </div>
 
