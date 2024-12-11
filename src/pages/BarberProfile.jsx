@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate } from "react-router-dom";
 
-const EditProfile = () => {
+const BarberProfile = () => {
   const [profileImage, setProfileImage] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
-    age: "",
-    mobile: "",
+    mobileNumber: "",
+    barberShopName: "",
+    location: "",
     email: "",
     agree: false,
   });
@@ -32,20 +33,17 @@ const EditProfile = () => {
       return;
     }
     console.log("Profile Updated:", formData);
-    // Redirect to the user-dashboard
-    navigate("/Customer");
+    navigate("/Barber");
   };
 
   return (
     <div className="container mt-5">
-      {/* Title */}
       <div className="text-center mb-4">
         <h1 style={{ fontSize: "2rem", fontWeight: "bold", color: "#007bff" }}>
-          Edit Profile
+          Enter Details
         </h1>
       </div>
 
-      {/* Form Section */}
       <div className="row justify-content-center">
         <div className="col-md-6">
           <form onSubmit={handleSubmit}>
@@ -94,35 +92,52 @@ const EditProfile = () => {
               />
             </div>
 
-            {/* Age */}
+            {/* Mobile Number */}
             <div className="mb-3">
-              <label htmlFor="age" className="form-label">
-                Age
+              <label htmlFor="mobileNumber" className="form-label">
+                Mobile Number
               </label>
               <input
-                type="number"
-                id="age"
-                name="age"
+                type="tel"
+                id="mobileNumber"
+                name="mobileNumber"
                 className="form-control"
-                placeholder="Enter your age"
-                value={formData.age}
+                placeholder="Enter your mobile number"
+                value={formData.mobileNumber}
                 onChange={handleInputChange}
                 required
               />
             </div>
 
-            {/* Mobile Number */}
+            {/* Barber's Shop Name */}
             <div className="mb-3">
-              <label htmlFor="mobile" className="form-label">
-                Mobile Number
+              <label htmlFor="barberShopName" className="form-label">
+                Barber's Shop Name
               </label>
               <input
-                type="tel"
-                id="mobile"
-                name="mobile"
+                type="text"
+                id="barberShopName"
+                name="barberShopName"
                 className="form-control"
-                placeholder="Enter your mobile number"
-                value={formData.mobile}
+                placeholder="Enter your shop name"
+                value={formData.barberShopName}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+
+            {/* Location */}
+            <div className="mb-3">
+              <label htmlFor="location" className="form-label">
+                Location
+              </label>
+              <input
+                type="text"
+                id="location"
+                name="location"
+                className="form-control"
+                placeholder="Enter your shop's address"
+                value={formData.location}
                 onChange={handleInputChange}
                 required
               />
@@ -131,7 +146,7 @@ const EditProfile = () => {
             {/* Email */}
             <div className="mb-3">
               <label htmlFor="email" className="form-label">
-                Email ID 
+                Email ID
               </label>
               <input
                 type="email"
@@ -173,4 +188,4 @@ const EditProfile = () => {
   );
 };
 
-export default EditProfile;
+export default BarberProfile;

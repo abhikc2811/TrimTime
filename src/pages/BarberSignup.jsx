@@ -38,14 +38,14 @@ const UserSignup = () => {
   const handleVerifyOtp = (e) => {
     e.preventDefault();
     console.log('Entered OTP:', otp);
-    navigate('/userprofile');
+    navigate('/Barberprofile');
   };
 
   return (
     <div className="container-box">
       <h1>TrimTime</h1>
       <div className="signup-page-container">
-        <h3 className="mb-4">User Registration</h3>
+        <h3 className="mb-4">Barber Registration</h3>
 
         <div className="mb-3">
           <Form onSubmit={handleGetOtp}>
