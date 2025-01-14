@@ -7,18 +7,33 @@ const Recommendation = ({ searchQuery }) => {
       name: "Barber Name 1",
       location: "Mahendragarh",
       rating: 4.5,
+      services: [
+        { name: "Haircut", price: 300 },
+        { name: "Shaving", price: 150 },
+        { name: "Massage", price: 500 },
+      ],
     },
     {
       imgSrc: "https://images.unsplash.com/photo-1543269865-cbf427effbad?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDJ8fGJhcmJlcnxlbnwwfHx8fDE2NjU1NTU1MDQ&ixlib=rb-1.2.1&q=80&w=400",
       name: "Barber Name 2",
       location: "Uptown",
       rating: 4.8,
+      services: [
+        { name: "Haircut", price: 350 },
+        { name: "Beard Trim", price: 200 },
+        { name: "Head Massage", price: 400 },
+      ],
     },
     {
       imgSrc: "https://images.fresha.com/locations/location-profile-images/1180884/2335288/43d9f6ee-5ee7-499c-86c2-34c0b0908566-BrutBarbershop-AE-Dubai-Dubai-AlSufouhDubaiMediaCity-Fresha.jpg?class=gallery-modal-large&dpr=2&watermark=true",
       name: "Billu Barber",
       location: "Gurgaon",
-      rating: 4.9,
+      rating: 5,
+      services: [
+        { name: "Haircut", price: 400 },
+        { name: "Shaving", price: 200 },
+        { name: "Facial", price: 600 },
+      ],
     },
   ];
 
@@ -50,6 +65,7 @@ const Recommendation = ({ searchQuery }) => {
                 name={barber.name}
                 location={barber.location}
                 rating={barber.rating}
+                services={barber.services} // Pass services to BarberCard
               />
             ))
           ) : (

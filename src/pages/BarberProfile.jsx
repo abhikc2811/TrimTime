@@ -1,19 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const BarberProfile = () => {
+  const navigate = useNavigate();
+  const location = useLocation();  // Import useLocation to access location state
+
   const [profileImage, setProfileImage] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
-    mobileNumber: "",
+    mobile: location.state?.mobile || "",  // Mobile is set from location state if available
     barberShopName: "",
     location: "",
     email: "",
     agree: false,
   });
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    if (location.state?.mobile) {
+      setFormData((prevState) => ({
+        ...prevState,
+        mobile: location.state.mobile,  // Updating formData if mobile exists in state
+      }));
+    }
+  }, [location.state]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -33,7 +43,7 @@ const BarberProfile = () => {
       return;
     }
     console.log("Profile Updated:", formData);
-    navigate("/Barber");
+    navigate("/Barber/dashboard", { state: { ...formData, profileImage } });
   };
 
   return (
@@ -47,14 +57,10 @@ const BarberProfile = () => {
       <div className="row justify-content-center">
         <div className="col-md-6">
           <form onSubmit={handleSubmit}>
-            {/* Profile Image */}
             <div className="mb-4 text-center">
               <label htmlFor="profileImage">
                 <img
-                  src={
-                    profileImage ||
-                    "https://via.placeholder.com/150?text=Profile+Image"
-                  }
+                  src={profileImage || "https://via.placeholder.com/150?text=Profile+Image"}
                   alt="Profile"
                   className="rounded-circle"
                   style={{
@@ -75,7 +81,6 @@ const BarberProfile = () => {
               <p className="small text-muted mt-2">Click image to upload</p>
             </div>
 
-            {/* Name */}
             <div className="mb-3">
               <label htmlFor="name" className="form-label">
                 Name
@@ -92,24 +97,22 @@ const BarberProfile = () => {
               />
             </div>
 
-            {/* Mobile Number */}
             <div className="mb-3">
-              <label htmlFor="mobileNumber" className="form-label">
+              <label htmlFor="mobile" className="form-label">
                 Mobile Number
               </label>
               <input
                 type="tel"
-                id="mobileNumber"
-                name="mobileNumber"
+                id="mobile"
+                name="mobile"
                 className="form-control"
                 placeholder="Enter your mobile number"
-                value={formData.mobileNumber}
+                value={formData.mobile}
                 onChange={handleInputChange}
                 required
               />
             </div>
 
-            {/* Barber's Shop Name */}
             <div className="mb-3">
               <label htmlFor="barberShopName" className="form-label">
                 Barber's Shop Name
@@ -126,7 +129,6 @@ const BarberProfile = () => {
               />
             </div>
 
-            {/* Location */}
             <div className="mb-3">
               <label htmlFor="location" className="form-label">
                 Location
@@ -143,10 +145,9 @@ const BarberProfile = () => {
               />
             </div>
 
-            {/* Email */}
             <div className="mb-3">
               <label htmlFor="email" className="form-label">
-                Email ID
+                Email ID (Optional)
               </label>
               <input
                 type="email"
@@ -159,7 +160,6 @@ const BarberProfile = () => {
               />
             </div>
 
-            {/* Privacy Policy Checkbox */}
             <div className="mb-4 form-check">
               <input
                 type="checkbox"
@@ -175,7 +175,6 @@ const BarberProfile = () => {
               </label>
             </div>
 
-            {/* Submit Button */}
             <div className="text-center">
               <button type="submit" className="btn btn-primary w-100">
                 Save Changes

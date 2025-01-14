@@ -1,21 +1,30 @@
-import React from "react";
-import { Link, Outlet } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import { FaCalendarCheck, FaCommentDots, FaSignOutAlt, FaStar } from "react-icons/fa";
 import { MdDashboard } from "react-icons/md";
-import "bootstrap/dist/css/bootstrap.min.css";
+import LogoutPopup from "../components/LogoutPopup";
 
 const BarberDashboard = () => {
+  const [showPopup, setShowPopup] = useState(false); 
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    setShowPopup(false); 
+    setTimeout(() => {
+      navigate("/"); 
+    }); 
+  };
+
   return (
     <div className="d-flex" style={{ minHeight: "100vh", backgroundColor: "lightgrey" }}>
-      {/* Sidebar */}
       <div
         className="bg-dark text-white d-flex flex-column p-3"
         style={{
           width: "250px",
-          position: "fixed", // Sidebar fixed
+          position: "fixed",
           top: 0,
           left: 0,
-          height: "100vh", // Ensure it spans the full height
+          height: "100vh",
           zIndex: 1000,
         }}
       >
@@ -42,14 +51,17 @@ const BarberDashboard = () => {
             </Link>
           </li>
           <li className="mt-auto">
-            <Link to="/logout" className="text-white text-decoration-none d-flex align-items-center">
+            <div
+              onClick={() => setShowPopup(true)}
+              className="text-white text-decoration-none d-flex align-items-center"
+              style={{ cursor: "pointer" }}
+            >
               <FaSignOutAlt className="me-2" /> Logout
-            </Link>
+            </div>
           </li>
         </ul>
       </div>
 
-      {/* Main Content */}
       <div
         className="flex-grow-1 p-4"
         style={{
@@ -58,6 +70,12 @@ const BarberDashboard = () => {
       >
         <Outlet />
       </div>
+
+      <LogoutPopup
+        show={showPopup}
+        onConfirm={handleLogout}
+        onCancel={() => setShowPopup(false)}
+      />
     </div>
   );
 };

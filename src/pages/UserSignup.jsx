@@ -38,7 +38,7 @@ const UserSignup = () => {
   const handleVerifyOtp = (e) => {
     e.preventDefault();
     console.log('Entered OTP:', otp);
-    navigate('/userprofile');
+    navigate('/userprofile', { state: { mobile: phoneNumber } });
   };
 
   return (

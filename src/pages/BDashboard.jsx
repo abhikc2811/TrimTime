@@ -1,16 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const BDashboard = () => {
+  const location = useLocation();
   const [isEditing, setIsEditing] = useState(false);
-  const [userData, setUserData] = useState({
-    username: 'John Doe',
+
+  const initialUserData = location.state || {
+    user: 'John Doe',
     profileImage: 'https://via.placeholder.com/150', // Placeholder image
     name: 'John Doe',
-    mobileNumber: '123-456-7890',
+    mobile: '123-456-7890',
     barberShopName: 'Bittu Salon',
     location: 'Gurgaon, Haryana - 122001',
     email: 'johndoe@example.com',
-  });
+  };
+
+  const [userData, setUserData] = useState(initialUserData);
+
+  useEffect(() => {
+      if (location.state) {
+        setUserData(location.state);
+      }
+    }, [location.state]);
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
@@ -41,7 +52,7 @@ const BDashboard = () => {
     <div className="container my-5">
       <div className="card shadow p-4">
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h1 className="h3">Welcome, {userData.username}!</h1>
+          <h1 className="h3">Welcome, {userData.name}!</h1>
           <button className="btn btn-primary" onClick={handleEditToggle}>
             {isEditing ? 'Save' : 'Edit'}
           </button>
@@ -53,7 +64,7 @@ const BDashboard = () => {
                 src={userData.profileImage}
                 alt="Profile"
                 className="img-fluid rounded-circle mb-3"
-                style={{ maxWidth: '150px', border: '2px solid #ddd' }}
+                style={{ width: '150px', height: '150px' , border: '2px solid #ddd' }}
               />
               {isEditing && (
                 <div className="mt-2">
@@ -90,12 +101,12 @@ const BDashboard = () => {
                   type="text"
                   className="form-control"
                   name="mobile"
-                  value={userData.mobileNumber}
+                  value={userData.mobile}
                   onChange={handleChange}
                 />
               ) : (
                 <p className="form-control-plaintext text-secondary">
-                  {userData.mobileNumber}
+                  {userData.mobile}
                 </p>
               )}
             </div>

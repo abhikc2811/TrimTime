@@ -1,20 +1,11 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { FaUserCircle } from 'react-icons/fa';
 
 const Navbar = ({ user }) => {
   const navigate = useNavigate();
 
-  const generateInitials = (name) => {
-    return name
-      ? name
-          .split(' ')
-          .map((n) => n[0].toUpperCase())
-          .slice(0, 2)
-          .join('')
-      : 'NA';
-  };
-
+  // Function to handle profile click and navigate to the appropriate role page
   const handleProfileClick = () => {
     if (user && user.role) {
       navigate(user.role === 'user' ? '/customer' : '/barber');
@@ -42,35 +33,20 @@ const Navbar = ({ user }) => {
             <li className="nav-item"><a className="nav-link" href="#services">Services</a></li>
             <li className="nav-item"><a className="nav-link" href="#contact">Contact Us</a></li>
           </ul>
-          <div className="d-flex">
+          <div className="d-flex ms-auto"> {/* ms-auto will push the content to the right */}
             {user ? (
               <div
                 className="d-flex align-items-center"
                 onClick={handleProfileClick}
                 style={{ cursor: 'pointer' }}
               >
-                {user.profilePic ? (
-                  <img
-                    src={user.profilePic}
-                    alt="Profile"
-                    className="rounded-circle"
-                    style={{ width: '40px', height: '40px' }}
-                  />
-                ) : (
-                  <div
-                    className="rounded-circle text-center text-dark"
-                    style={{
-                      width: '40px',
-                      height: '40px',
-                      lineHeight: '40px',
-                      backgroundColor: '#f0f0f0',
-                      fontSize: '16px',
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    {generateInitials(user.name)}
-                  </div>
-                )}
+                {/* Check if profilePic exists, otherwise use the placeholder */}
+                <img
+                  src={user.profilePic || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'}  // Fallback to placeholder if no profilePic
+                  alt="Profile"
+                  className="rounded-circle"
+                  style={{ width: '40px', height: '40px' }}
+                />
               </div>
             ) : (
               <button className="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#loginModal">

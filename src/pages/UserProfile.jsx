@@ -1,18 +1,27 @@
-import React, { useState } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const EditProfile = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const [profileImage, setProfileImage] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     age: "",
-    mobile: "",
+    mobile: location.state?.mobile || "", // Set the mobile number passed from UserSignup
     email: "",
     agree: false,
   });
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    if (location.state?.mobile) {
+      setFormData((prevState) => ({
+        ...prevState,
+        mobile: location.state.mobile,
+      }));
+    }
+  }, [location.state]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -32,31 +41,25 @@ const EditProfile = () => {
       return;
     }
     console.log("Profile Updated:", formData);
-    // Redirect to the user-dashboard
-    navigate("/Customer");
+    // Here, send formData to the backend (Spring Boot)
+    navigate("/Customer/dashboard", { state: { ...formData, profileImage } });
   };
 
   return (
     <div className="container mt-5">
-      {/* Title */}
       <div className="text-center mb-4">
         <h1 style={{ fontSize: "2rem", fontWeight: "bold", color: "#007bff" }}>
           Edit Profile
         </h1>
       </div>
 
-      {/* Form Section */}
       <div className="row justify-content-center">
         <div className="col-md-6">
           <form onSubmit={handleSubmit}>
-            {/* Profile Image */}
             <div className="mb-4 text-center">
               <label htmlFor="profileImage">
                 <img
-                  src={
-                    profileImage ||
-                    "https://via.placeholder.com/150?text=Profile+Image"
-                  }
+                  src={profileImage || "https://via.placeholder.com/150?text=Profile+Image"}
                   alt="Profile"
                   className="rounded-circle"
                   style={{
@@ -77,7 +80,6 @@ const EditProfile = () => {
               <p className="small text-muted mt-2">Click image to upload</p>
             </div>
 
-            {/* Name */}
             <div className="mb-3">
               <label htmlFor="name" className="form-label">
                 Name
@@ -94,7 +96,6 @@ const EditProfile = () => {
               />
             </div>
 
-            {/* Age */}
             <div className="mb-3">
               <label htmlFor="age" className="form-label">
                 Age
@@ -111,7 +112,6 @@ const EditProfile = () => {
               />
             </div>
 
-            {/* Mobile Number */}
             <div className="mb-3">
               <label htmlFor="mobile" className="form-label">
                 Mobile Number
@@ -128,10 +128,9 @@ const EditProfile = () => {
               />
             </div>
 
-            {/* Email */}
             <div className="mb-3">
               <label htmlFor="email" className="form-label">
-                Email ID 
+                Email ID (Optional)
               </label>
               <input
                 type="email"
@@ -144,7 +143,6 @@ const EditProfile = () => {
               />
             </div>
 
-            {/* Privacy Policy Checkbox */}
             <div className="mb-4 form-check">
               <input
                 type="checkbox"
@@ -160,7 +158,6 @@ const EditProfile = () => {
               </label>
             </div>
 
-            {/* Submit Button */}
             <div className="text-center">
               <button type="submit" className="btn btn-primary w-100">
                 Save Changes

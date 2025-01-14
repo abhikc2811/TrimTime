@@ -76,14 +76,13 @@ const LoginModal = ({ setUser }) => {
 
     setUser(loggedInUser);
 
-    // Close the modal and restore scrolling
     closeModal();
 
     // Redirect user based on their role
     if (role === 'user') {
       navigate('/');
     } else {
-      navigate('/dashboard');
+      navigate('/barber/dashboard');
     }
   };
 

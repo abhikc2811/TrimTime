@@ -9,15 +9,14 @@ const UserSignup = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(''); // State for validation error
+  const [errorMessage, setErrorMessage] = useState(''); 
   const navigate = useNavigate();
 
   const handlePhoneChange = (e) => {
     const value = e.target.value;
     if (/^\d*$/.test(value)) {
-      // Allow only numeric values
       setPhoneNumber(value);
-      setErrorMessage(''); // Clear error on valid input
+      setErrorMessage(''); 
     }
   };
 
@@ -38,7 +37,7 @@ const UserSignup = () => {
   const handleVerifyOtp = (e) => {
     e.preventDefault();
     console.log('Entered OTP:', otp);
-    navigate('/Barberprofile');
+    navigate('/Barberprofile', { state: { mobile: phoneNumber } });
   };
 
   return (

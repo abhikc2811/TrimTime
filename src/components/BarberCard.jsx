@@ -1,9 +1,12 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import RatingStars from "./RatingStars";
+import BarberBookingModal from "./BarberBookingModal";
 
-const BarberCard = ({ imgSrc, name, location, rating }) => {
+const BarberCard = ({ imgSrc, name, location, rating, services }) => {
+  const [showModal, setShowModal] = useState(false);
+
   return (
     <div className="col-lg-4 col-md-6">
-      <Link to={`/barber/${encodeURIComponent(name)}`} style={{ textDecoration: "none", color: "inherit" }}>
       <div className="card">
         <img
           src={imgSrc}
@@ -13,13 +16,25 @@ const BarberCard = ({ imgSrc, name, location, rating }) => {
         <div className="card-body">
           <h5 className="card-title">{name}</h5>
           <p className="card-text">Location: {location}</p>
-          <p className="card-text">Rating: {rating}/5</p>
-          <a href="#" className="btn btn-primary">
+          <p className="card-text">
+            Rating: {rating} <RatingStars rating={rating} />
+          </p>
+          <button
+            onClick={() => setShowModal(true)}
+            className="btn btn-primary"
+          >
             Book Appointment
-          </a>
+          </button>
         </div>
       </div>
-      </Link>
+
+      {showModal && (
+        <BarberBookingModal
+          show={showModal}
+          onClose={() => setShowModal(false)} 
+          barber={{ imgSrc, name, location, rating, services }} 
+        />
+      )}
     </div>
   );
 };

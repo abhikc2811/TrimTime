@@ -1,15 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const Dashboard = () => {
+  const location = useLocation();
   const [isEditing, setIsEditing] = useState(false);
-  const [userData, setUserData] = useState({
-    username: 'John Doe',
-    profileImage: 'https://via.placeholder.com/150', // Placeholder image
+
+  const initialUserData = location.state || {
     name: 'John Doe',
+    profileImage: 'https://via.placeholder.com/150',
     age: 30,
     mobile: '123-456-7890',
     email: 'johndoe@example.com',
-  });
+  };
+
+  const [userData, setUserData] = useState(initialUserData);
+
+  useEffect(() => {
+    if (location.state) {
+      setUserData(location.state);
+    }
+  }, [location.state]);
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
@@ -40,7 +50,7 @@ const Dashboard = () => {
     <div className="container my-5">
       <div className="card shadow p-4">
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h1 className="h3">Welcome, {userData.username}!</h1>
+          <h1 className="h3">Welcome, {userData.name}!</h1>
           <button className="btn btn-primary" onClick={handleEditToggle}>
             {isEditing ? 'Save' : 'Edit'}
           </button>
@@ -49,10 +59,10 @@ const Dashboard = () => {
           <div className="col-md-4 text-center">
             <div className="position-relative">
               <img
-                src={userData.profileImage}
+                src={userData.profileImage || 'https://via.placeholder.com/150' }
                 alt="Profile"
                 className="img-fluid rounded-circle mb-3"
-                style={{ maxWidth: '150px', border: '2px solid #ddd' }}
+                style={{ width: '150px', height: '150px', border: '2px solid #ddd' }}
               />
               {isEditing && (
                 <div className="mt-2">
