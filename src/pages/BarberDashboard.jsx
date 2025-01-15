@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
-import { FaCalendarCheck, FaCommentDots, FaSignOutAlt, FaStar } from "react-icons/fa";
+import { FaCalendarCheck, FaCommentDots, FaHome, FaSignOutAlt, FaStar } from "react-icons/fa";
 import { MdDashboard } from "react-icons/md";
 import LogoutPopup from "../components/LogoutPopup";
 
@@ -68,6 +68,15 @@ const BarberDashboard = () => {
           marginLeft: "250px",
         }}
       >
+        <div className="text-end">
+          <FaHome 
+            size={28} 
+            color="black" 
+            style={{ cursor: "pointer" }} 
+            onClick={() => window.location.href = "http://localhost:5173/"}
+            title="Go to Home"
+          />
+        </div>
         <Outlet />
       </div>
 

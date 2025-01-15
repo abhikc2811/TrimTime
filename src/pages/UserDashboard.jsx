@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { MdDashboard } from "react-icons/md";
-import { FaCalendarCheck, FaSignOutAlt, FaCommentDots } from "react-icons/fa";
+import { FaCalendarCheck, FaSignOutAlt, FaCommentDots, FaHome } from "react-icons/fa";
 import LogoutPopup from "../components/LogoutPopup";
 
 const UserDashboard = () => {
@@ -63,6 +63,15 @@ const UserDashboard = () => {
           marginLeft: "250px",
         }}
       >
+        <div className="text-end">
+          <FaHome 
+            size={28} 
+            color="black" 
+            style={{ cursor: "pointer" }} 
+            onClick={() => window.location.href = "http://localhost:5173/"}
+            title="Go to Home"
+          />
+        </div>
         <Outlet />
       </div>
 
