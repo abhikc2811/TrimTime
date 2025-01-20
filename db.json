@@ -1,0 +1,84 @@
+{
+  "customers": [
+    {
+      "id": "2de3",
+      "name": "Abhishek",
+      "age": "24",
+      "mobile": "7982601330",
+      "email": "abhikc2811@gmail.com",
+      "agree": true,
+      "profileImage": ""
+    },
+    {
+      "id": "ae91",
+      "name": "Rahul",
+      "age": "23",
+      "mobile": "9354278444",
+      "email": "rahul12@gmail.com",
+      "agree": true,
+      "profileImage": ""
+    },
+    {
+      "id": "7cfa",
+      "name": "twitter",
+      "age": "12",
+      "mobile": "6576576570",
+      "email": "",
+      "agree": true,
+      "profileImage": "blob:http://localhost:5173/ca3ba7af-690e-4d9c-a7a0-8237813fa374"
+    },
+    {
+      "id": "a12a",
+      "name": "Deba",
+      "age": "23",
+      "mobile": "7982111111",
+      "email": "",
+      "agree": true,
+      "profileImage": ""
+    }
+  ],
+  "barbers": [
+    {
+      "id": "055d",
+      "name": "Rahul",
+      "mobile": "7777777777",
+      "barberShopName": "TrimCut Salon",
+      "location": "Mahendragarh",
+      "email": "rahul12@gmail.com",
+      "agree": true,
+      "profileImage": "",
+      "services": [
+        {
+          "name": "Haircut",
+          "price": "150"
+        },
+        {
+          "name": "Shaving",
+          "price": "100"
+        }
+      ],
+      "shopImage": null
+    },
+    {
+      "id": "5cfe",
+      "name": "Sanjay",
+      "mobile": "7982653410",
+      "barberShopName": "Unisex salon",
+      "location": "Mahendragarh",
+      "email": "abhikc2811@gmail.com",
+      "agree": true,
+      "profileImage": "",
+      "services": [
+        {
+          "name": "Haircut",
+          "price": "150"
+        },
+        {
+          "name": "Facial",
+          "price": "300"
+        }
+      ],
+      "shopImage": null
+    }
+  ]
+}

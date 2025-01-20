@@ -37,7 +37,7 @@ const UserSignup = () => {
   const handleVerifyOtp = (e) => {
     e.preventDefault();
     console.log('Entered OTP:', otp);
-    navigate('/Barberprofile', { state: { mobile: phoneNumber } });
+    navigate('/Barber/barber-registration', { state: { mobile: phoneNumber } });
   };
 
   return (
@@ -86,6 +86,7 @@ const UserSignup = () => {
                     placeholder="Enter the OTP"
                     required
                     className="me-2 form-control-lg"
+                    maxLength={6}
                   />
                   <Button variant="primary" type="submit">
                     Verify

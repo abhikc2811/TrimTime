@@ -4,6 +4,8 @@ import { useLocation } from 'react-router-dom';
 const BDashboard = () => {
   const location = useLocation();
   const [isEditing, setIsEditing] = useState(false);
+  const [shopImage, setShopImage] = useState(null);
+  const [barberId, setBarberId] = useState(null);
 
   const initialUserData = location.state || {
     user: 'John Doe',
@@ -16,14 +18,58 @@ const BDashboard = () => {
   };
 
   const [userData, setUserData] = useState(initialUserData);
+  const [services, setServices] = useState([{ name: '', price: '' }]);
 
   useEffect(() => {
-      if (location.state) {
-        setUserData(location.state);
-      }
-    }, [location.state]);
+    // Fetch the barber's ID based on their email
+    const fetchBarberId = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/barbers');
+        const data = await response.json();
 
-  const handleEditToggle = () => {
+        const barber = data.find((barber) => barber.email === userData.email);
+        if (barber) {
+          setBarberId(barber.id);
+          setUserData(barber);
+          setServices(barber.services || []);
+          setShopImage(barber.shopImage || null);
+        }
+      } catch (error) {
+        console.error('Error fetching barber ID:', error);
+      }
+    };
+
+    fetchBarberId();
+  }, [userData.email]);
+
+  const handleEditToggle = async () => {
+    if (isEditing && barberId) {
+      try {
+        const updatedData = {
+          ...userData,
+          services,
+          shopImage,
+        };
+
+        const response = await fetch(`http://localhost:3001/barbers/${barberId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updatedData),
+        });
+
+        if (response.ok) {
+          alert('Profile updated successfully!');
+        } else {
+          alert('Failed to update profile.');
+        }
+      } catch (error) {
+        console.error('Error updating profile:', error);
+        alert('An error occurred while updating the profile.');
+      }
+    }
+
     setIsEditing(!isEditing);
   };
 
@@ -35,6 +81,21 @@ const BDashboard = () => {
     }));
   };
 
+  const handleServiceChange = (index, field, value) => {
+    const updatedServices = [...services];
+    updatedServices[index][field] = value;
+    setServices(updatedServices);
+  };
+
+  const addService = () => {
+    setServices([...services, { name: '', price: '' }]);
+  };
+
+  const removeService = (index) => {
+    const updatedServices = services.filter((_, i) => i !== index);
+    setServices(updatedServices);
+  };
+
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       const fileReader = new FileReader();
@@ -43,6 +104,16 @@ const BDashboard = () => {
           ...prevData,
           profileImage: event.target.result,
         }));
+      };
+      fileReader.readAsDataURL(e.target.files[0]);
+    }
+  };
+
+  const handleShopImageChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const fileReader = new FileReader();
+      fileReader.onload = (event) => {
+        setShopImage(event.target.result); // Save the shop image without displaying it
       };
       fileReader.readAsDataURL(e.target.files[0]);
     }
@@ -64,7 +135,7 @@ const BDashboard = () => {
                 src={userData.profileImage}
                 alt="Profile"
                 className="img-fluid rounded-circle mb-3"
-                style={{ width: '150px', height: '150px' , border: '2px solid #ddd' }}
+                style={{ width: '150px', height: '150px', border: '2px solid #ddd' }}
               />
               {isEditing && (
                 <div className="mt-2">
@@ -78,6 +149,7 @@ const BDashboard = () => {
             </div>
           </div>
           <div className="col-md-8">
+            {/* Existing Fields */}
             <div className="mb-3">
               <label className="form-label text-dark fw-bold">Name:</label>
               {isEditing ? (
@@ -157,6 +229,65 @@ const BDashboard = () => {
                   {userData.email}
                 </p>
               )}
+            </div>
+            {/* Service Fields */}
+            <div className="mb-3">
+              <label className="form-label text-dark fw-bold">Services:</label>
+              {services.map((service, index) => (
+                <div key={index} className="d-flex align-items-center mb-2">
+                  {isEditing ? (
+                    <>
+                      <input
+                        type="text"
+                        className="form-control me-2"
+                        placeholder="Service Name"
+                        value={service.name}
+                        onChange={(e) =>
+                          handleServiceChange(index, 'name', e.target.value)
+                        }
+                      />
+                      <input
+                        type="text"
+                        className="form-control me-2"
+                        placeholder="Price"
+                        value={service.price}
+                        onChange={(e) =>
+                          handleServiceChange(index, 'price', e.target.value)
+                        }
+                      />
+                      <button
+                        className="btn btn-danger"
+                        onClick={() => removeService(index)}
+                      >
+                        Remove
+                      </button>
+                    </>
+                  ) : (
+                    <p className="form-control-plaintext text-secondary">
+                      {service.name} - ₹{service.price}
+                    </p>
+                  )}
+                </div>
+              ))}
+              {isEditing && (
+                <button className="btn btn-success mt-2" onClick={addService}>
+                  + Add
+                </button>
+              )}
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label text-dark fw-bold">Shop Image:</label>
+              {isEditing && (
+                <input
+                  type="file"
+                  className="form-control"
+                  onChange={handleShopImageChange}
+                />
+              )}
+              <p className="mt-2">
+                {shopImage ? 'Shop image has been uploaded.' : 'No shop image uploaded.'}
+              </p>
             </div>
           </div>
         </div>

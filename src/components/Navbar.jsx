@@ -1,15 +1,64 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FaUserCircle } from 'react-icons/fa';
 
-const Navbar = ({ user }) => {
+const Navbar = ({ user, onLogout }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  // Function to handle profile click and navigate to the appropriate role page
-  const handleProfileClick = () => {
-    if (user && user.role) {
-      navigate(user.role === 'user' ? '/customer' : '/barber');
+  const handleLoginClick = () => {
+    if (!location.pathname.includes('/auth/login')) {
+      navigate('/auth/login', { replace: true });
     }
+    const modal = document.getElementById('loginModal');
+    if (modal) {
+      modal.classList.add('show');
+      modal.style.display = 'block';
+      document.body.classList.add('modal-open');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  const handleProfileClick = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
+
+  const handleDashboardClick = async () => {
+    try {
+      // Fetch both customers and barbers
+      const [customersResponse, barbersResponse] = await Promise.all([
+        fetch("http://localhost:3001/customers"),
+        fetch("http://localhost:3001/barbers"),
+      ]);
+  
+      const [customers, barbers] = await Promise.all([
+        customersResponse.json(),
+        barbersResponse.json(),
+      ]);
+  
+      // Check if the user is a customer or a barber
+      const isCustomer = customers.some((customer) => customer.mobile === user.mobile);
+      const isBarber = barbers.some((barber) => barber.mobile === user.mobile);
+  
+      if (isCustomer) {
+        navigate("/customer/dashboard");
+      } else if (isBarber) {
+        navigate("/barber/dashboard");
+      } else {
+        alert("User not found in either customers or barbers.");
+      }
+    } catch (error) {
+      console.error("Error checking user type:", error);
+      alert("An error occurred. Please try again.");
+    }
+  };  
+
+  const handleLogoutClick = () => {
+    if (onLogout) {
+      onLogout(); 
+    }
+    navigate('/'); 
   };
 
   return (
@@ -33,23 +82,54 @@ const Navbar = ({ user }) => {
             <li className="nav-item"><a className="nav-link" href="#services">Services</a></li>
             <li className="nav-item"><a className="nav-link" href="#contact">Contact Us</a></li>
           </ul>
-          <div className="d-flex ms-auto"> {/* ms-auto will push the content to the right */}
+          <div className="d-flex ms-auto">
             {user ? (
               <div
-                className="d-flex align-items-center"
-                onClick={handleProfileClick}
-                style={{ cursor: 'pointer' }}
+                className="dropdown"
+                style={{ position: 'relative' }}
               >
-                {/* Check if profilePic exists, otherwise use the placeholder */}
-                <img
-                  src={user.profilePic || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'}  // Fallback to placeholder if no profilePic
-                  alt="Profile"
-                  className="rounded-circle"
-                  style={{ width: '40px', height: '40px' }}
-                />
+                <div
+                  className="d-flex align-items-center"
+                  onClick={handleProfileClick}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <img
+                    src={user.profilePic || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'}
+                    alt="Profile"
+                    className="rounded-circle"
+                    style={{ width: '40px', height: '40px' }}
+                  />
+                  <span className="ms-2 text-white">{user.name}</span>
+                </div>
+                {dropdownOpen && (
+                  <ul
+                    className="dropdown-menu dropdown-menu-dark dropdown-menu-end show"
+                    style={{ position: 'absolute', marginTop: '5px'}}
+                  >
+                    <li>
+                      <button
+                        className="dropdown-item"
+                        onClick={handleDashboardClick}
+                      >
+                        Dashboard
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        className="dropdown-item"
+                        onClick={handleLogoutClick}
+                      >
+                        Logout
+                      </button>
+                    </li>
+                  </ul>
+                )}
               </div>
             ) : (
-              <button className="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#loginModal">
+              <button
+                className="btn btn-outline-light me-2"
+                onClick={handleLoginClick}
+              >
                 <FaUserCircle size={24} />
                 &nbsp;&nbsp;Login
               </button>

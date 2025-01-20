@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './LoginModal.css';
 
 const LoginModal = ({ setUser }) => {
@@ -9,6 +9,7 @@ const LoginModal = ({ setUser }) => {
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [isOtpVerified, setIsOtpVerified] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const closeModal = () => {
     const modal = document.getElementById('loginModal');
@@ -23,20 +24,31 @@ const LoginModal = ({ setUser }) => {
       modalBackdrop.remove();
     }
 
-    // Ensure proper cleanup of modal-open and body styles
     document.body.classList.remove('modal-open');
     document.body.style.overflow = '';
     document.body.style.paddingRight = '';
+
+    navigate('/', { replace: true });
   };
 
   useEffect(() => {
-    // Cleanup on component unmount to restore scrolling
+    const modal = document.getElementById('loginModal');
+
+    if (location.pathname === '/auth/login') {
+      if (modal) {
+        modal.classList.add('show');
+        modal.style.display = 'block';
+        document.body.classList.add('modal-open');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
     return () => {
       document.body.classList.remove('modal-open');
       document.body.style.overflow = '';
       document.body.style.paddingRight = '';
     };
-  }, []);
+  }, [location.pathname]);
 
   const handleRoleChange = (newRole) => {
     setRole(newRole);
@@ -60,32 +72,57 @@ const LoginModal = ({ setUser }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!isOtpVerified) {
-      alert('Please verify OTP before logging in.');
+      alert("Please verify OTP before logging in.");
       return;
     }
-
-    const loggedInUser = {
-      name: role === 'user' ? 'John Doe' : 'Barber Smith',
-      profilePic: '',
-      mobile,
-    };
-
-    setUser(loggedInUser);
-
-    closeModal();
-
-    // Redirect user based on their role
-    if (role === 'user') {
-      navigate('/');
-    } else {
-      navigate('/barber/dashboard');
+  
+    try {
+      // Fetch both customers and barbers
+      const [customersResponse, barbersResponse] = await Promise.all([
+        fetch("http://localhost:3001/customers"),
+        fetch("http://localhost:3001/barbers"),
+      ]);
+  
+      const [customers, barbers] = await Promise.all([
+        customersResponse.json(),
+        barbersResponse.json(),
+      ]);
+  
+      // Check which array the user belongs to
+      const userOrBarber = customers.find((c) => c.mobile === mobile) || 
+                           barbers.find((b) => b.mobile === mobile);
+  
+      if (!userOrBarber) {
+        alert("No user found with this mobile number.");
+        return;
+      }
+  
+      // Successfully logged in
+      const loggedInUser = {
+        name: userOrBarber.name,
+        profilePic: userOrBarber.profileImage || "",
+        mobile,
+      };
+  
+      setUser(loggedInUser); // Pass the user to Navbar
+      closeModal();
+  
+      // Redirect user based on their type
+      if (customers.some((c) => c.mobile === mobile)) {
+        navigate("/");
+      } else {
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+      alert("An error occurred while logging in. Please try again.");
     }
   };
-
+  
   return (
     <div className="modal fade" id="loginModal" tabIndex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
       <div className="modal-dialog modal-dialog-scrollable">
@@ -161,7 +198,7 @@ const LoginModal = ({ setUser }) => {
               </button>
             </form>
             <div className="register">
-              <a href="/signup">New User? Register Here</a>
+              <a href="/auth/signup">New User? Register Here</a>
             </div>
           </div>
         </div>

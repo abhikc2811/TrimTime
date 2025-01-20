@@ -15,39 +15,43 @@ import BDashboard from './pages/BDashboard';
 import BarberAppointment from './pages/BarberAppointment';
 import Reviews from './pages/Reviews';
 import SearchResults from './pages/SearchResult';
+import { LoginProvider } from './context/LoginContext';
 
 function App() {
   return (
-    <Router>
-      <div>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/Customer" element={<UserDashboard />} />
-          <Route path="/barber" element={<BarberDashboard />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/user-signup" element={<UserSignup />} />
-          <Route path="/barber-signup" element={<BarberSignup />} />
-          <Route path="/barberprofile" element={<BarberProfile />} />
-          <Route path="/userprofile" element={<UserProfile />} />
-          <Route path="/search" element={<SearchResults />} />
+    <LoginProvider>
+      <Router>
+        <div>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/auth/login" element={<HomePage />} />
+            <Route path="/Customer" element={<UserDashboard />} />
+            <Route path="/barber" element={<BarberDashboard />} />
+            <Route path="/auth/signup" element={<SignupPage />} />
+            <Route path="/Customer/sendOTP" element={<UserSignup />} />
+            <Route path="/Barber/sendOTP" element={<BarberSignup />} />
+            <Route path="/Barber/barber-registration" element={<BarberProfile />} />
+            <Route path="/Customer/customer-registration" element={<UserProfile />} />
+            <Route path="/search" element={<SearchResults />} />
 
-          <Route path="/Customer" element={<UserDashboard />}>
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="appointments" element={<MyAppointments />} />
-            <Route path="paymenthistory" element={<PaymentHistory />}/>
-            <Route path="feedback" element={<Feedback />} />
-          </Route>
+            <Route path="/Customer" element={<UserDashboard />}>
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="appointments" element={<MyAppointments />} />
+              <Route path="paymenthistory" element={<PaymentHistory />}/>
+              <Route path="feedback" element={<Feedback />} />
+            </Route>
 
-          <Route path="/Barber" element={<BarberDashboard />}>
-            <Route path="dashboard" element={<BDashboard />} />
-            <Route path="getMyAppointments" element={<BarberAppointment />} />
-            <Route path="showMyReviews" element={<Reviews />} />
-            <Route path="feedback" element={<Feedback />} />
-          </Route>
+            <Route path="/Barber" element={<BarberDashboard />}>
+              <Route path="dashboard" element={<BDashboard />} />
+              <Route path="getMyAppointments" element={<BarberAppointment />} />
+              <Route path="showMyReviews" element={<Reviews />} />
+              <Route path="feedback" element={<Feedback />} />
+            </Route>
 
-        </Routes>
-      </div>
-    </Router>
+          </Routes>
+        </div>
+      </Router>
+    </LoginProvider>
   );
 }
 

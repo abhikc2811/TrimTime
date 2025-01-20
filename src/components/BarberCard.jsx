@@ -2,7 +2,7 @@ import { useState } from "react";
 import RatingStars from "./RatingStars";
 import BarberBookingModal from "./BarberBookingModal";
 
-const BarberCard = ({ imgSrc, name, location, rating, services }) => {
+const BarberCard = ({ imgSrc, barberShopName, location, services, rating }) => {
   const [showModal, setShowModal] = useState(false);
 
   return (
@@ -11,10 +11,10 @@ const BarberCard = ({ imgSrc, name, location, rating, services }) => {
         <img
           src={imgSrc}
           className="card-img-top barber-img"
-          alt={`${name}'s Image`}
+          alt={`${barberShopName}'s Image`}
         />
         <div className="card-body">
-          <h5 className="card-title">{name}</h5>
+          <h5 className="card-title">{barberShopName}</h5>
           <p className="card-text">Location: {location}</p>
           <p className="card-text">
             Rating: {rating} <RatingStars rating={rating} />
@@ -31,8 +31,8 @@ const BarberCard = ({ imgSrc, name, location, rating, services }) => {
       {showModal && (
         <BarberBookingModal
           show={showModal}
-          onClose={() => setShowModal(false)} 
-          barber={{ imgSrc, name, location, rating, services }} 
+          onClose={() => setShowModal(false)}
+          barber={{ imgSrc, barberShopName, location, rating, services }}
         />
       )}
     </div>

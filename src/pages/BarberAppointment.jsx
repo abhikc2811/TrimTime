@@ -9,39 +9,7 @@ const BarberAppointment = () => {
       timeSlot: "10:00 AM - 10:30 AM",
       age: 28,
       mobile: "123-456-7890",
-    },
-    {
-      id: 2,
-      customerName: "Jane Smith",
-      date: "2024-12-02",
-      timeSlot: "11:00 AM - 11:30 AM",
-      age: 32,
-      mobile: "234-567-8901",
-    },
-    {
-      id: 3,
-      customerName: "Sam Wilson",
-      date: "2024-12-02",
-      timeSlot: "01:00 PM - 01:30 PM",
-      age: 25,
-      mobile: "345-678-9012",
-    },
-    {
-      id: 4,
-      customerName: "Emily Brown",
-      date: "2024-12-03",
-      timeSlot: "09:30 AM - 10:00 AM",
-      age: 40,
-      mobile: "456-789-0123",
-    },
-    {
-      id: 5,
-      customerName: "Michael Johnson",
-      date: "2024-12-03",
-      timeSlot: "12:00 PM - 12:30 PM",
-      age: 35,
-      mobile: "567-890-1234",
-    },
+    }
   ]);
 
   const handleCancel = (id) => {

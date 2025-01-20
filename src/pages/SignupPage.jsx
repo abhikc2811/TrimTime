@@ -13,9 +13,9 @@ const SignupPage = () => {
     
     // Redirect to the appropriate signup page
     if (selectedRole === 'user') {
-      navigate('/user-signup');  // Navigate to UserSignup component
+      navigate('/Customer/sendOTP');  // Navigate to UserSignup component
     } else if (selectedRole === 'barber') {
-      navigate('/barber-signup');  // Navigate to BarberSignup component
+      navigate('/Barber/sendOTP');  // Navigate to BarberSignup component
     }
   };
 

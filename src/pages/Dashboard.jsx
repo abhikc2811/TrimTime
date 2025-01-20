@@ -6,6 +6,7 @@ const Dashboard = () => {
   const [isEditing, setIsEditing] = useState(false);
 
   const initialUserData = location.state || {
+    id: '',
     name: 'John Doe',
     profileImage: 'https://via.placeholder.com/150',
     age: 30,
@@ -21,7 +22,30 @@ const Dashboard = () => {
     }
   }, [location.state]);
 
-  const handleEditToggle = () => {
+  const handleEditToggle = async () => {
+    if (isEditing) {
+      try {
+        const response = await fetch(`http://localhost:3001/customers/${userData.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData),
+        });
+  
+        if (!response.ok) {
+          throw new Error('Failed to update user data.');
+        }
+  
+        const updatedData = await response.json();
+        console.log('Updated User:', updatedData);
+  
+        alert('Profile updated successfully!');
+      } catch (error) {
+        console.error('Error updating profile:', error);
+        alert('An error occurred while updating the profile.');
+      }
+    }
     setIsEditing(!isEditing);
   };
 
