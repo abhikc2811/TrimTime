@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 const BarberAppointment = () => {
   const [appointments, setAppointments] = useState([
@@ -6,8 +7,8 @@ const BarberAppointment = () => {
       id: 1,
       customerName: "John Doe",
       date: "2024-12-02",
-      timeSlot: "10:00 AM - 10:30 AM",
-      age: 28,
+      timeSlot: "10:00 AM",
+      services: ["Haircut", "Massage"],
       mobile: "123-456-7890",
     }
   ]);
@@ -32,7 +33,7 @@ const BarberAppointment = () => {
               <th>Customer Name</th>
               <th>Date</th>
               <th>Time Slot</th>
-              <th>Age</th>
+              <th>Services</th>
               <th>Mobile Number</th>
               <th>Actions</th>
             </tr>
@@ -44,7 +45,7 @@ const BarberAppointment = () => {
                 <td>{appointment.customerName}</td>
                 <td>{appointment.date}</td>
                 <td>{appointment.timeSlot}</td>
-                <td>{appointment.age}</td>
+                <td>{appointment.services}</td>
                 <td>{appointment.mobile}</td>
                 <td>
                   <button

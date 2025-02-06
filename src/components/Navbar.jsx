@@ -1,11 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FaUserCircle } from 'react-icons/fa';
+import { useAuth } from '../context/AuthContext';
 
-const Navbar = ({ user, onLogout }) => {
+const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, role, logout } = useAuth(); // Get user and logout from AuthContext
+  const [updatedUser, setUpdatedUser] = useState(user); // Local state for user data
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  // Fetch the latest user data
+  const fetchUpdatedUser = async () => {
+    try {
+      if (user && user.mobile) {
+        const endpoint =
+          role === 'barber'
+            ? `http://localhost:3001/barbers?mobile=${user.mobile}`
+            : `http://localhost:3001/customers?mobile=${user.mobile}`;
+
+        const response = await fetch(endpoint);
+        if (response.ok) {
+          const [fetchedUser] = await response.json();
+          setUpdatedUser(fetchedUser); // Update local state
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching updated user:', error);
+    }
+  };
+
+  // Fetch the user data on mount and when the user changes
+  useEffect(() => {
+    fetchUpdatedUser();
+  }, [user, role]);
 
   const handleLoginClick = () => {
     if (!location.pathname.includes('/auth/login')) {
@@ -24,47 +52,25 @@ const Navbar = ({ user, onLogout }) => {
     setDropdownOpen(!dropdownOpen);
   };
 
-  const handleDashboardClick = async () => {
-    try {
-      // Fetch both customers and barbers
-      const [customersResponse, barbersResponse] = await Promise.all([
-        fetch("http://localhost:3001/customers"),
-        fetch("http://localhost:3001/barbers"),
-      ]);
-  
-      const [customers, barbers] = await Promise.all([
-        customersResponse.json(),
-        barbersResponse.json(),
-      ]);
-  
-      // Check if the user is a customer or a barber
-      const isCustomer = customers.some((customer) => customer.mobile === user.mobile);
-      const isBarber = barbers.some((barber) => barber.mobile === user.mobile);
-  
-      if (isCustomer) {
-        navigate("/customer/dashboard");
-      } else if (isBarber) {
-        navigate("/barber/dashboard");
-      } else {
-        alert("User not found in either customers or barbers.");
-      }
-    } catch (error) {
-      console.error("Error checking user type:", error);
-      alert("An error occurred. Please try again.");
+  const handleDashboardClick = () => {
+    if (role === 'customer') {
+      navigate('/Customer/dashboard', { replace: true });
+    } else if (role === 'barber') {
+      navigate('/Barber/dashboard', { replace: true });
+    } else {
+      alert('User role is undefined. Please contact support.');
     }
-  };  
+  };
 
   const handleLogoutClick = () => {
-    if (onLogout) {
-      onLogout(); 
-    }
-    navigate('/'); 
+    logout(); // Log the user out
+    navigate('/'); // Redirect to the homepage
   };
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container-fluid">
-        <a className="navbar-brand" href="#">TrimTime</a>
+        <a className="navbar-brand" href="/">TrimTime</a>
         <button
           className="navbar-toggler"
           type="button"
@@ -83,28 +89,25 @@ const Navbar = ({ user, onLogout }) => {
             <li className="nav-item"><a className="nav-link" href="#contact">Contact Us</a></li>
           </ul>
           <div className="d-flex ms-auto">
-            {user ? (
-              <div
-                className="dropdown"
-                style={{ position: 'relative' }}
-              >
+            {updatedUser ? (
+              <div className="dropdown" style={{ position: 'relative' }}>
                 <div
                   className="d-flex align-items-center"
                   onClick={handleProfileClick}
                   style={{ cursor: 'pointer' }}
                 >
                   <img
-                    src={user.profilePic || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'}
+                    src={updatedUser.profileImage || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'}
                     alt="Profile"
                     className="rounded-circle"
                     style={{ width: '40px', height: '40px' }}
                   />
-                  <span className="ms-2 text-white">{user.name}</span>
+                  <span className="ms-2 text-white">{updatedUser.name}</span>
                 </div>
                 {dropdownOpen && (
                   <ul
                     className="dropdown-menu dropdown-menu-dark dropdown-menu-end show"
-                    style={{ position: 'absolute', marginTop: '5px'}}
+                    style={{ position: 'absolute', marginTop: '5px', right: '0'}}
                   >
                     <li>
                       <button

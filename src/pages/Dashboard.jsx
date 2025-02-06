@@ -1,29 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Dashboard = () => {
   const location = useLocation();
+  const { user } = useAuth(); 
+  const [userData, setUserData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  const initialUserData = location.state || {
-    id: '',
-    name: 'John Doe',
-    profileImage: 'https://via.placeholder.com/150',
-    age: 30,
-    mobile: '123-456-7890',
-    email: 'johndoe@example.com',
-  };
-
-  const [userData, setUserData] = useState(initialUserData);
-
   useEffect(() => {
-    if (location.state) {
-      setUserData(location.state);
-    }
-  }, [location.state]);
+    const fetchCustomerData = async () => {
+      try {
+        if (user) {
+          const response = await fetch(`http://localhost:3001/customers?mobile=${user.mobile}`);
+          if (!response.ok) {
+            throw new Error('Failed to fetch customer data.');
+          }
+          const [customerData] = await response.json(); // Assuming the result is an array
+          setUserData(customerData || location.state); // Fallback to location.state if no customer found
+        } else if (location.state) {
+          // If no AuthContext user, fallback to location.state
+          setUserData(location.state);
+        }
+      } catch (error) {
+        console.error('Error fetching customer data:', error);
+      }
+    };
+
+    fetchCustomerData();
+  }, [user, location.state]);
 
   const handleEditToggle = async () => {
-    if (isEditing) {
+    if (isEditing && userData) {
       try {
         const response = await fetch(`http://localhost:3001/customers/${userData.id}`, {
           method: 'PUT',
@@ -32,14 +40,13 @@ const Dashboard = () => {
           },
           body: JSON.stringify(userData),
         });
-  
+
         if (!response.ok) {
-          throw new Error('Failed to update user data.');
+          throw new Error('Failed to update customer data.');
         }
-  
+
         const updatedData = await response.json();
-        console.log('Updated User:', updatedData);
-  
+        setUserData(updatedData);
         alert('Profile updated successfully!');
       } catch (error) {
         console.error('Error updating profile:', error);
@@ -70,6 +77,10 @@ const Dashboard = () => {
     }
   };
 
+  if (!userData) {
+    return <p>Loading...</p>;
+  }
+
   return (
     <div className="container my-3">
       <div className="card shadow p-4">
@@ -83,7 +94,7 @@ const Dashboard = () => {
           <div className="col-md-4 text-center">
             <div className="position-relative">
               <img
-                src={userData.profileImage || 'https://via.placeholder.com/150' }
+                src={userData.profileImage || "https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png"}
                 alt="Profile"
                 className="img-fluid rounded-circle mb-3"
                 style={{ width: '150px', height: '150px', border: '2px solid #ddd' }}
@@ -134,19 +145,9 @@ const Dashboard = () => {
             </div>
             <div className="mb-3">
               <label className="form-label text-dark fw-bold">Mobile:</label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  className="form-control"
-                  name="mobile"
-                  value={userData.mobile}
-                  onChange={handleChange}
-                />
-              ) : (
-                <p className="form-control-plaintext text-secondary">
-                  {userData.mobile}
-                </p>
-              )}
+              <p className="form-control-plaintext text-secondary">
+                {userData.mobile}
+              </p>
             </div>
             <div className="mb-3">
               <label className="form-label text-dark fw-bold">Email:</label>

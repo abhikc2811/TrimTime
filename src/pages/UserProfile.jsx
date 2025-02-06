@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext"; // Import AuthContext
 
 const EditProfile = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { login } = useAuth(); // Get the login function from AuthContext
 
   const [profileImage, setProfileImage] = useState(null);
   const [formData, setFormData] = useState({
@@ -28,12 +30,9 @@ const EditProfile = () => {
     const { name, value, type, checked } = e.target;
     setFormData({ ...formData, [name]: type === "checkbox" ? checked : value });
 
-    // Validation for mobile number
     if (name === "mobile") {
       const isValid = /^[0-9]{0,10}$/.test(value);
-      if (!isValid) {
-        return; // Prevents updating state if input exceeds 10 digits
-      }
+      if (!isValid) return;
       setFormData({ ...formData, mobile: value });
       setErrors({
         ...errors,
@@ -50,47 +49,56 @@ const EditProfile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!formData.agree) {
       alert("You must agree to the privacy policy and terms of conditions.");
       return;
     }
-  
+
     if (formData.mobile.length !== 10) {
       setErrors({ ...errors, mobile: "Please enter a valid phone number." });
       return;
     }
-  
+
     const newCustomer = {
       ...formData,
       profileImage: profileImage || "",
     };
-  
+
     try {
       const response = await fetch(`http://localhost:3001/customers`, {
-        method: "POST", 
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(newCustomer),
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to register customer.");
       }
-  
-      const savedCustomer = await response.json(); 
 
+      const savedCustomer = await response.json();
       console.log("Customer Registered:", savedCustomer);
+
+      // Automatically log the user in
+      const loggedInUser = {
+        name: savedCustomer.name,
+        profilePic: savedCustomer.profileImage,
+        mobile: savedCustomer.mobile,
+      };
+      login(loggedInUser); // Use the AuthContext login function
+
       alert("Customer registered successfully!");
 
+      // Redirect to the customer's dashboard
       navigate("/Customer/dashboard", { state: { ...savedCustomer } });
     } catch (error) {
       console.error(error);
       alert("An error occurred while registering the customer.");
     }
   };
-  
+
   return (
     <div className="container-box">
       <div className="container mt-2">
@@ -113,7 +121,10 @@ const EditProfile = () => {
                 <div className="mb-4 text-center">
                   <label htmlFor="profileImage">
                     <img
-                      src={profileImage || "https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png"}
+                      src={
+                        profileImage ||
+                        "https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png"
+                      }
                       alt="Profile"
                       className="rounded-circle"
                       style={{

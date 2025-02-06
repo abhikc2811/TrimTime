@@ -3,7 +3,7 @@
     {
       "id": "2de3",
       "name": "Abhishek",
-      "age": "24",
+      "age": "25",
       "mobile": "7982601330",
       "email": "abhikc2811@gmail.com",
       "agree": true,
@@ -33,6 +33,33 @@
       "age": "23",
       "mobile": "7982111111",
       "email": "",
+      "agree": true,
+      "profileImage": ""
+    },
+    {
+      "id": "ab5b",
+      "name": "Abhishek",
+      "age": "24",
+      "mobile": "7982601220",
+      "email": "",
+      "agree": true,
+      "profileImage": ""
+    },
+    {
+      "id": "ee3e",
+      "name": "Abhimanyu",
+      "age": "22",
+      "mobile": "7982601999",
+      "email": "abhi.manyu@gmail.com",
+      "agree": true,
+      "profileImage": ""
+    },
+    {
+      "id": "6730",
+      "name": "Yuva",
+      "age": "19",
+      "mobile": "7549105771",
+      "email": "yuvathakur@gmail.com",
       "agree": true,
       "profileImage": ""
     }
@@ -79,6 +106,32 @@
         }
       ],
       "shopImage": null
+    },
+    {
+      "id": "f655",
+      "name": "Bhargav",
+      "mobile": "7982601333",
+      "barberShopName": "Bhargav Unisex Salon",
+      "location": "Mahendragarh",
+      "email": "",
+      "agree": true,
+      "profileImage": null
+    },
+    {
+      "id": "64b3",
+      "name": "Gulshan Xalxo",
+      "mobile": "8319731167",
+      "barberShopName": "Gullu Nai",
+      "location": "Mahendragarh",
+      "email": "",
+      "agree": true,
+      "profileImage": null,
+      "services": [
+        {
+          "name": "Haircut",
+          "price": 100
+        }
+      ]
     }
   ]
 }

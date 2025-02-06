@@ -1,78 +1,77 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const BDashboard = () => {
   const location = useLocation();
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [shopImage, setShopImage] = useState(null);
   const [barberId, setBarberId] = useState(null);
-
-  const initialUserData = location.state || {
-    user: 'John Doe',
-    profileImage: 'https://via.placeholder.com/150', // Placeholder image
-    name: 'John Doe',
-    mobile: '123-456-7890',
-    barberShopName: 'Bittu Salon',
-    location: 'Gurgaon, Haryana - 122001',
-    email: 'johndoe@example.com',
-  };
-
-  const [userData, setUserData] = useState(initialUserData);
+  const [userData, setUserData] = useState(null);
   const [services, setServices] = useState([{ name: '', price: '' }]);
 
   useEffect(() => {
-    // Fetch the barber's ID based on their email
-    const fetchBarberId = async () => {
+    const fetchBarberData = async () => {
       try {
-        const response = await fetch('http://localhost:3001/barbers');
-        const data = await response.json();
-
-        const barber = data.find((barber) => barber.email === userData.email);
-        if (barber) {
-          setBarberId(barber.id);
-          setUserData(barber);
-          setServices(barber.services || []);
-          setShopImage(barber.shopImage || null);
+        if (user) {
+          const response = await fetch(`http://localhost:3001/barbers?mobile=${user.mobile}`);
+          if (!response.ok) {
+            throw new Error('Failed to fetch barber data.');
+          }
+          const [barberData] = await response.json();
+          setUserData(barberData || location.state);
+          if (barberData?.services) {
+            setServices(barberData.services);
+          }
+        } else if (location.state) {
+          setUserData(location.state);
+          if (location.state?.services) {
+            setServices(location.state.services);
+          }
         }
       } catch (error) {
-        console.error('Error fetching barber ID:', error);
+        console.error('Error fetching barber data:', error);
       }
     };
 
-    fetchBarberId();
-  }, [userData.email]);
+    fetchBarberData();
+  }, [user, location.state]);
 
   const handleEditToggle = async () => {
-    if (isEditing && barberId) {
+    if (isEditing && userData) {
       try {
-        const updatedData = {
-          ...userData,
-          services,
-          shopImage,
+        const updatedData = { 
+          ...userData, 
+          services: services.map((service) => ({
+            name: service.name.trim(),
+            price: parseFloat(service.price) || 0,
+          }))
         };
-
-        const response = await fetch(`http://localhost:3001/barbers/${barberId}`, {
+  
+        const response = await fetch(`http://localhost:3001/barbers/${userData.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(updatedData),
         });
-
-        if (response.ok) {
-          alert('Profile updated successfully!');
-        } else {
-          alert('Failed to update profile.');
+  
+        if (!response.ok) {
+          throw new Error('Failed to update profile.');
         }
+  
+        const updatedDataResponse = await response.json();
+        setUserData(updatedDataResponse); // Update local state with the response
+        alert('Profile updated successfully!');
       } catch (error) {
         console.error('Error updating profile:', error);
         alert('An error occurred while updating the profile.');
       }
     }
-
     setIsEditing(!isEditing);
   };
-
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUserData((prevData) => ({
@@ -113,7 +112,10 @@ const BDashboard = () => {
     if (e.target.files && e.target.files[0]) {
       const fileReader = new FileReader();
       fileReader.onload = (event) => {
-        setShopImage(event.target.result); // Save the shop image without displaying it
+        setUserData((prevData) => ({
+          ...prevData,
+          shopImage: event.target.result,
+        }));
       };
       fileReader.readAsDataURL(e.target.files[0]);
     }
@@ -123,7 +125,7 @@ const BDashboard = () => {
     <div className="container my-3">
       <div className="card shadow p-4">
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h1 className="h3">Welcome, {userData.name}!</h1>
+          <h1 className="h3">Welcome, {userData?.name || 'Guest'}!</h1>
           <button className="btn btn-primary" onClick={handleEditToggle}>
             {isEditing ? 'Save' : 'Edit'}
           </button>
@@ -132,7 +134,7 @@ const BDashboard = () => {
           <div className="col-md-4 text-center">
             <div className="position-relative">
               <img
-                src={userData.profileImage}
+                src={userData?.profileImage || 'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png'}
                 alt="Profile"
                 className="img-fluid rounded-circle mb-3"
                 style={{ width: '150px', height: '150px', border: '2px solid #ddd' }}
@@ -157,12 +159,12 @@ const BDashboard = () => {
                   type="text"
                   className="form-control"
                   name="name"
-                  value={userData.name}
+                  value={userData?.name || ''}
                   onChange={handleChange}
                 />
               ) : (
                 <p className="form-control-plaintext text-secondary">
-                  {userData.name}
+                  {userData?.name || ''}
                 </p>
               )}
             </div>
@@ -173,12 +175,12 @@ const BDashboard = () => {
                   type="text"
                   className="form-control"
                   name="mobile"
-                  value={userData.mobile}
+                  value={userData?.mobile || ''}
                   onChange={handleChange}
                 />
               ) : (
                 <p className="form-control-plaintext text-secondary">
-                  {userData.mobile}
+                  {userData?.mobile || ''}
                 </p>
               )}
             </div>
@@ -188,13 +190,13 @@ const BDashboard = () => {
                 <input
                   type="text"
                   className="form-control"
-                  name="shopName"
-                  value={userData.barberShopName}
+                  name="barberShopName"
+                  value={userData?.barberShopName || ''}
                   onChange={handleChange}
                 />
               ) : (
                 <p className="form-control-plaintext text-secondary">
-                  {userData.barberShopName}
+                  {userData?.barberShopName || ''}
                 </p>
               )}
             </div>
@@ -205,12 +207,12 @@ const BDashboard = () => {
                   type="text"
                   className="form-control"
                   name="location"
-                  value={userData.location}
+                  value={userData?.location || ''}
                   onChange={handleChange}
                 />
               ) : (
                 <p className="form-control-plaintext text-secondary">
-                  {userData.location}
+                  {userData?.location || ''}
                 </p>
               )}
             </div>
@@ -221,12 +223,12 @@ const BDashboard = () => {
                   type="email"
                   className="form-control"
                   name="email"
-                  value={userData.email}
+                  value={userData?.email || ''}
                   onChange={handleChange}
                 />
               ) : (
                 <p className="form-control-plaintext text-secondary">
-                  {userData.email}
+                  {userData?.email || ''}
                 </p>
               )}
             </div>
@@ -286,7 +288,7 @@ const BDashboard = () => {
                 />
               )}
               <p className="mt-2">
-                {shopImage ? 'Shop image has been uploaded.' : 'No shop image uploaded.'}
+                {userData?.shopImage ? 'Shop image has been uploaded.' : 'No shop image uploaded.'}
               </p>
             </div>
           </div>
