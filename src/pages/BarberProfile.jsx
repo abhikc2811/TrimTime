@@ -1,21 +1,22 @@
-import axios from "axios";
 import React, { useState, useEffect } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const BarberProfile = () => {
   const navigate = useNavigate();
-  const location = useLocation();  // Import useLocation to access location state
+  const location = useLocation();
+  const { login } = useAuth();
 
   const [profileImage, setProfileImage] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
-    mobile: location.state?.mobile || "",  // Mobile is set from location state if available
+    mobile: location.state?.mobile || "",  
     barberShopName: "",
     location: "",
     email: "",
     agree: false,
   });
+  const [errors, setErrors] = useState({ mobile: "" });
 
   useEffect(() => {
     if (location.state?.mobile) {
@@ -28,24 +29,31 @@ const BarberProfile = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({ ...formData, [name]: type === "checkbox" ? checked : value });
+    let updatedValue = type === "checkbox" ? checked : value;
 
     if (name === "mobile") {
       const isValid = /^[0-9]{0,10}$/.test(value);
-      if (!isValid) {
-        return; // Prevents updating state if input exceeds 10 digits
-      }
-      setFormData({ ...formData, mobile: value });
-      setErrors({
-        ...errors,
+      if (!isValid) return; 
+      setErrors((prev) => ({
+        ...prev,
         mobile: value.length === 10 || value === "" ? "" : "Please enter a valid phone number.",
-      });
+      }));
+      updatedValue = value;
     }
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: updatedValue,
+    }));
   };
 
   const handleImageChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setProfileImage(URL.createObjectURL(e.target.files[0]));
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result); 
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -57,7 +65,7 @@ const BarberProfile = () => {
     }
   
     if (formData.mobile.length !== 10) {
-      alert("Please enter a valid phone number.");
+      setErrors({ ...errors, mobile: "Please enter a valid phone number." });
       return;
     }
   
@@ -75,9 +83,20 @@ const BarberProfile = () => {
       if (!response.ok) {
         throw new Error("Failed to save profile");
       }
+
+      const savedBarber = await response.json();
+      console.log("barber Registered:", savedBarber);
+
+      // Automatically log the user in
+      const loggedInUser = {
+        name: savedBarber.name,
+        profilePic: savedBarber.profileImage,
+        mobile: savedBarber.mobile,
+      };
+      login(loggedInUser);
   
-      alert("Profile saved successfully!");
-      navigate("/Barber/dashboard", { state: { ...newBarber } });
+      alert("Barber registered successfully!");
+      navigate("/Barber/dashboard", { state: { ...savedBarber } });
     } catch (error) {
       console.error("Error saving profile:", error);
       alert("Failed to save profile. Please try again.");

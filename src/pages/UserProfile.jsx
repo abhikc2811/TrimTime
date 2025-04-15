@@ -28,22 +28,31 @@ const EditProfile = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({ ...formData, [name]: type === "checkbox" ? checked : value });
+    let updatedValue = type === "checkbox" ? checked : value;
 
     if (name === "mobile") {
       const isValid = /^[0-9]{0,10}$/.test(value);
       if (!isValid) return;
-      setFormData({ ...formData, mobile: value });
-      setErrors({
-        ...errors,
+      setErrors((prev) => ({
+        ...prev,
         mobile: value.length === 10 || value === "" ? "" : "Please enter a valid phone number.",
-      });
+      }));
+      updatedValue=value;
     }
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: updatedValue,
+    }));
   };
 
   const handleImageChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setProfileImage(URL.createObjectURL(e.target.files[0]));
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result); 
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -60,10 +69,7 @@ const EditProfile = () => {
       return;
     }
 
-    const newCustomer = {
-      ...formData,
-      profileImage: profileImage || "",
-    };
+    const newCustomer = {...formData, profileImage };
 
     try {
       const response = await fetch(`http://localhost:3001/customers`, {

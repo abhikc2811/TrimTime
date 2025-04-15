@@ -32,7 +32,11 @@ const Navbar = () => {
 
   // Fetch the user data on mount and when the user changes
   useEffect(() => {
-    fetchUpdatedUser();
+    if (user && role) {
+      fetchUpdatedUser();
+    } else {
+      setUpdatedUser(null); // Clear UI when user logs out
+    }
   }, [user, role]);
 
   const handleLoginClick = () => {
@@ -64,6 +68,7 @@ const Navbar = () => {
 
   const handleLogoutClick = () => {
     logout(); // Log the user out
+    setDropdownOpen(false);
     navigate('/'); // Redirect to the homepage
   };
 

@@ -57,10 +57,7 @@ const SearchResults = () => {
             filteredBarbers.map((barber, index) => (
               <BarberCard
                 key={index}
-                imgSrc={
-                  barber.imgSrc ||
-                  "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png"
-                }
+                imgSrc={barber.imgSrc || "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png"}
                 barberShopName={barber.barberShopName}
                 location={barber.location}
                 rating={barber.rating || 0}
