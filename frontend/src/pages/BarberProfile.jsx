@@ -22,7 +22,7 @@ const BarberProfile = () => {
     if (location.state?.mobile) {
       setFormData((prevState) => ({
         ...prevState,
-        mobile: location.state.mobile,  // Updating formData if mobile exists in state
+        mobile: location.state.mobile,  
       }));
     }
   }, [location.state]);
@@ -87,7 +87,6 @@ const BarberProfile = () => {
       const savedBarber = await response.json();
       console.log("barber Registered:", savedBarber);
 
-      // Automatically log the user in
       const loggedInUser = {
         name: savedBarber.name,
         profilePic: savedBarber.profileImage,

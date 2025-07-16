@@ -1,29 +1,24 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
-// Create Auth Context
 const AuthContext = createContext();
 
-// AuthProvider Component
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState(null);
 
-  // Login function
   const login = async (userData) => {
     setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData)); // Save user data to localStorage
+    localStorage.setItem('user', JSON.stringify(userData)); 
 
     await determineRole(userData.mobile);
   };
 
-  // Logout function
   const logout = () => {
     setUser(null);
     setRole(null);
-    localStorage.removeItem('user'); // Clear user data from localStorage
+    localStorage.removeItem('user'); 
   };
 
-  // Load user from localStorage on app initialization
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
@@ -34,7 +29,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-   // Function to determine user role
    const determineRole = async (mobile) => {
     try {
       const [customersResponse, barbersResponse] = await Promise.all([
@@ -67,5 +61,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Custom Hook to Use Auth Context
 export const useAuth = () => useContext(AuthContext);

@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // Import AuthContext
+import { useAuthStore } from "../store/useAuthStore";
 
 const EditProfile = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { login } = useAuth(); // Get the login function from AuthContext
+
+  const role = useAuthStore((state) => state.role);
+  const emailFromStore = useAuthStore((state) => state.email);
+  const register = useAuthStore((state) => state.register);
 
   const [profileImage, setProfileImage] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
-    age: "",
     mobile: location.state?.mobile || "",
-    email: "",
+    email: emailFromStore || "",
+    password: "",
     agree: false,
   });
   const [errors, setErrors] = useState({ mobile: "" });
@@ -26,6 +29,15 @@ const EditProfile = () => {
     }
   }, [location.state]);
 
+  useEffect(() => {
+    if (emailFromStore) {
+      setFormData((prev) => ({
+        ...prev,
+        email: emailFromStore,
+      }));
+    }
+  }, [emailFromStore]);
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     let updatedValue = type === "checkbox" ? checked : value;
@@ -37,7 +49,7 @@ const EditProfile = () => {
         ...prev,
         mobile: value.length === 10 || value === "" ? "" : "Please enter a valid phone number.",
       }));
-      updatedValue=value;
+      updatedValue = value;
     }
     setFormData((prevState) => ({
       ...prevState,
@@ -50,7 +62,7 @@ const EditProfile = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setProfileImage(reader.result); 
+        setProfileImage(reader.result);
       };
       reader.readAsDataURL(file);
     }
@@ -69,36 +81,24 @@ const EditProfile = () => {
       return;
     }
 
-    const newCustomer = {...formData, profileImage };
+    if (!formData.password) {
+      alert("Please enter a password.");
+      return;
+    }
+
+    const dataToRegister = {
+      ...formData,
+      profileImage,
+      role,
+      email: emailFromStore, 
+    };
 
     try {
-      const response = await fetch(`http://localhost:3001/customers`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newCustomer),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to register customer.");
-      }
-
-      const savedCustomer = await response.json();
-      console.log("Customer Registered:", savedCustomer);
-
-      // Automatically log the user in
-      const loggedInUser = {
-        name: savedCustomer.name,
-        profilePic: savedCustomer.profileImage,
-        mobile: savedCustomer.mobile,
-      };
-      login(loggedInUser); // Use the AuthContext login function
+      await register(dataToRegister);
 
       alert("Customer registered successfully!");
 
-      // Redirect to the customer's dashboard
-      navigate("/Customer/dashboard", { state: { ...savedCustomer } });
+      navigate("/Customer/dashboard", { state: { ...dataToRegister } });
     } catch (error) {
       console.error(error);
       alert("An error occurred while registering the customer.");
@@ -168,22 +168,6 @@ const EditProfile = () => {
                 </div>
 
                 <div className="mb-3">
-                  <label htmlFor="age" className="form-label">
-                    Age
-                  </label>
-                  <input
-                    type="number"
-                    id="age"
-                    name="age"
-                    className="form-control"
-                    placeholder="Enter your age"
-                    value={formData.age}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-
-                <div className="mb-3">
                   <label htmlFor="mobile" className="form-label">
                     Mobile Number
                   </label>
@@ -207,7 +191,7 @@ const EditProfile = () => {
 
                 <div className="mb-3">
                   <label htmlFor="email" className="form-label">
-                    Email ID (Optional)
+                    Email ID (consistent with verification)
                   </label>
                   <input
                     type="email"
@@ -216,7 +200,23 @@ const EditProfile = () => {
                     className="form-control"
                     placeholder="Enter your email"
                     value={formData.email}
+                    readOnly
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label htmlFor="password" className="form-label">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    className="form-control"
+                    placeholder="Enter your password"
+                    value={formData.password}
                     onChange={handleInputChange}
+                    required
                   />
                 </div>
 

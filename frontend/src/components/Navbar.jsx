@@ -1,55 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FaUserCircle } from 'react-icons/fa';
-import { useAuth } from '../context/AuthContext';
+import { useAuthStore } from '../store/useAuthStore';
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { user, role, logout } = useAuth(); // Get user and logout from AuthContext
-  const [updatedUser, setUpdatedUser] = useState(user); // Local state for user data
+  const { user, role, logout, setLoginModalOpen } = useAuthStore();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  // Fetch the latest user data
-  const fetchUpdatedUser = async () => {
-    try {
-      if (user && user.mobile) {
-        const endpoint =
-          role === 'barber'
-            ? `http://localhost:3001/barbers?mobile=${user.mobile}`
-            : `http://localhost:3001/customers?mobile=${user.mobile}`;
-
-        const response = await fetch(endpoint);
-        if (response.ok) {
-          const [fetchedUser] = await response.json();
-          setUpdatedUser(fetchedUser); // Update local state
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching updated user:', error);
-    }
-  };
-
-  // Fetch the user data on mount and when the user changes
-  useEffect(() => {
-    if (user && role) {
-      fetchUpdatedUser();
-    } else {
-      setUpdatedUser(null); // Clear UI when user logs out
-    }
-  }, [user, role]);
-
   const handleLoginClick = () => {
-    if (!location.pathname.includes('/auth/login')) {
-      navigate('/auth/login', { replace: true });
-    }
-    const modal = document.getElementById('loginModal');
-    if (modal) {
-      modal.classList.add('show');
-      modal.style.display = 'block';
-      document.body.classList.add('modal-open');
-      document.body.style.overflow = 'hidden';
-    }
+    setLoginModalOpen(true); 
   };
 
   const handleProfileClick = () => {
@@ -67,9 +27,9 @@ const Navbar = () => {
   };
 
   const handleLogoutClick = () => {
-    logout(); // Log the user out
+    logout();
     setDropdownOpen(false);
-    navigate('/'); // Redirect to the homepage
+    navigate('/');
   };
 
   return (
@@ -87,14 +47,16 @@ const Navbar = () => {
         >
           <span className="navbar-toggler-icon"></span>
         </button>
+
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav me-auto">
             <li className="nav-item"><a className="nav-link" href="#about">About</a></li>
             <li className="nav-item"><a className="nav-link" href="#services">Services</a></li>
             <li className="nav-item"><a className="nav-link" href="#contact">Contact Us</a></li>
           </ul>
+
           <div className="d-flex ms-auto">
-            {updatedUser ? (
+            {user ? (
               <div className="dropdown" style={{ position: 'relative' }}>
                 <div
                   className="d-flex align-items-center"
@@ -102,31 +64,26 @@ const Navbar = () => {
                   style={{ cursor: 'pointer' }}
                 >
                   <img
-                    src={updatedUser.profileImage || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'}
+                    src={user.profilePic || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'}
                     alt="Profile"
                     className="rounded-circle"
                     style={{ width: '40px', height: '40px' }}
                   />
-                  <span className="ms-2 text-white">{updatedUser.name}</span>
+                  <span className="ms-2 text-white">{user.name}</span>
                 </div>
+
                 {dropdownOpen && (
                   <ul
                     className="dropdown-menu dropdown-menu-dark dropdown-menu-end show"
-                    style={{ position: 'absolute', marginTop: '5px', right: '0'}}
+                    style={{ position: 'absolute', marginTop: '5px', right: '0' }}
                   >
                     <li>
-                      <button
-                        className="dropdown-item"
-                        onClick={handleDashboardClick}
-                      >
+                      <button className="dropdown-item" onClick={handleDashboardClick}>
                         Dashboard
                       </button>
                     </li>
                     <li>
-                      <button
-                        className="dropdown-item"
-                        onClick={handleLogoutClick}
-                      >
+                      <button className="dropdown-item" onClick={handleLogoutClick}>
                         Logout
                       </button>
                     </li>

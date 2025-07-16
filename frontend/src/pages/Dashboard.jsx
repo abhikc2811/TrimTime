@@ -1,34 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuthStore } from '../store/useAuthStore'; // your zustand store
 
 const Dashboard = () => {
-  const location = useLocation();
-  const { user } = useAuth(); 
+  const user = useAuthStore(state => state.user);
+  const role = useAuthStore(state => state.role);
+  const loading = useAuthStore(state => state.loading);
+  const error = useAuthStore(state => state.error);
+
   const [userData, setUserData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
-    const fetchCustomerData = async () => {
-      try {
-        if (user) {
-          const response = await fetch(`http://localhost:3001/customers?mobile=${user.mobile}`);
-          if (!response.ok) {
-            throw new Error('Failed to fetch customer data.');
-          }
-          const [customerData] = await response.json(); // Assuming the result is an array
-          setUserData(customerData || location.state); // Fallback to location.state if no customer found
-        } else if (location.state) {
-          // If no AuthContext user, fallback to location.state
-          setUserData(location.state);
-        }
-      } catch (error) {
-        console.error('Error fetching customer data:', error);
-      }
-    };
-
-    fetchCustomerData();
-  }, [user, location.state]);
+    // When user updates in store, set it locally for editing
+    if (user) {
+      setUserData(user);
+    }
+  }, [user]);
 
   const handleEditToggle = async () => {
     if (isEditing && userData) {
@@ -48,8 +35,8 @@ const Dashboard = () => {
         const updatedData = await response.json();
         setUserData(updatedData);
         alert('Profile updated successfully!');
-      } catch (error) {
-        console.error('Error updating profile:', error);
+      } catch (err) {
+        console.error('Error updating profile:', err);
         alert('An error occurred while updating the profile.');
       }
     }
@@ -58,8 +45,8 @@ const Dashboard = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setUserData((prevData) => ({
-      ...prevData,
+    setUserData(prev => ({
+      ...prev,
       [name]: value,
     }));
   };
@@ -68,8 +55,8 @@ const Dashboard = () => {
     if (e.target.files && e.target.files[0]) {
       const fileReader = new FileReader();
       fileReader.onload = (event) => {
-        setUserData((prevData) => ({
-          ...prevData,
+        setUserData(prev => ({
+          ...prev,
           profileImage: event.target.result,
         }));
       };
@@ -77,9 +64,9 @@ const Dashboard = () => {
     }
   };
 
-  if (!userData) {
-    return <p>Loading...</p>;
-  }
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
+  if (!userData) return <p>No user data found. Please login.</p>;
 
   return (
     <div className="container my-3">
@@ -94,7 +81,10 @@ const Dashboard = () => {
           <div className="col-md-4 text-center">
             <div className="position-relative">
               <img
-                src={userData.profileImage || "https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png"}
+                src={
+                  userData.profileImage ||
+                  "https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png"
+                }
                 alt="Profile"
                 className="img-fluid rounded-circle mb-3"
                 style={{ width: '150px', height: '150px', border: '2px solid #ddd' }}
@@ -105,6 +95,7 @@ const Dashboard = () => {
                     type="file"
                     className="form-control"
                     onChange={handleImageChange}
+                    accept="image/*"
                   />
                 </div>
               )}
@@ -118,37 +109,29 @@ const Dashboard = () => {
                   type="text"
                   className="form-control"
                   name="name"
-                  value={userData.name}
+                  value={userData.name || ''}
                   onChange={handleChange}
                 />
               ) : (
-                <p className="form-control-plaintext text-secondary">
-                  {userData.name}
-                </p>
+                <p className="form-control-plaintext text-secondary">{userData.name}</p>
               )}
             </div>
-            <div className="mb-3">
-              <label className="form-label text-dark fw-bold">Age:</label>
-              {isEditing ? (
-                <input
-                  type="number"
-                  className="form-control"
-                  name="age"
-                  value={userData.age}
-                  onChange={handleChange}
-                />
-              ) : (
-                <p className="form-control-plaintext text-secondary">
-                  {userData.age}
-                </p>
-              )}
-            </div>
+
             <div className="mb-3">
               <label className="form-label text-dark fw-bold">Mobile:</label>
-              <p className="form-control-plaintext text-secondary">
-                {userData.mobile}
-              </p>
+              {isEditing ? (
+                <input
+                  type="tel"
+                  className="form-control"
+                  name="mobile"
+                  value={userData.mobile || ''}
+                  onchange={handleChange}
+                />
+              ) : (
+                <p className="form-control-plaintext text-secondary">{userData.mobile}</p>
+              )}
             </div>
+
             <div className="mb-3">
               <label className="form-label text-dark fw-bold">Email:</label>
               {isEditing ? (
@@ -156,12 +139,28 @@ const Dashboard = () => {
                   type="email"
                   className="form-control"
                   name="email"
-                  value={userData.email}
+                  value={userData.email || ''}
+                  onChange={handleChange}
+                  disabled 
+                />
+              ) : (
+                <p className="form-control-plaintext text-secondary">{userData.email}</p>
+              )}
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label text-dark fw-bold">Location:</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  className="form-control"
+                  name="location"
+                  value={userData.location || ''}
                   onChange={handleChange}
                 />
               ) : (
                 <p className="form-control-plaintext text-secondary">
-                  {userData.email}
+                  {userData.location || 'Not provided'}
                 </p>
               )}
             </div>
