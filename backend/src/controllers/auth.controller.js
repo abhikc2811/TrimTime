@@ -179,3 +179,62 @@ export const checkAuth = async (req, res) => {
     return res.status(500).json({ message: 'Auth check failed' });
   }
 };
+
+export const updateProfile = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    let Model = Customer;
+    let user = await Customer.findById(userId);
+    let role = 'customer';
+
+    if (!user) {
+      Model = Barber;
+      user = await Barber.findById(userId);
+      role = 'barber';
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const { name, mobile, location, services } = req.body;
+    const updateData = { name, mobile, location };
+
+    if (req.files?.profilePic?.[0]) {
+      const file = req.files.profilePic[0];
+      const base64 = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+      const uploadRes = await cloudinary.uploader.upload(base64);
+      updateData.profilePic = uploadRes.secure_url;
+    }
+
+    if (role === 'barber' && req.files?.shopImage?.[0]) {
+      const file = req.files.shopImage[0];
+      const base64 = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+      const uploadRes = await cloudinary.uploader.upload(base64);
+      updateData.shopImage = uploadRes.secure_url;
+    }
+
+    if (role === 'barber' && services) {
+      try {
+        updateData.services = JSON.parse(services); 
+      } catch (e) {
+        return res.status(400).json({ message: 'Invalid services format. Must be JSON.' });
+      }
+    }
+
+    const updatedUser = await Model.findByIdAndUpdate(userId, updateData, { new: true });
+
+    return res.status(200).json({
+      message: 'Profile updated successfully',
+      user: updatedUser,
+      role,
+    });
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};

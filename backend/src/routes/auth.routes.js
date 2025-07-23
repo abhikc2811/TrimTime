@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import { sendOtp, verifyOtp, register, login, logout, checkAuth } from '../controllers/auth.controller.js';
+import { sendOtp, verifyOtp, register, login, logout, checkAuth, updateProfile} from '../controllers/auth.controller.js';
 import authMiddleware from '../middleware/auth.middleware.js';
 
 const router = express.Router();
@@ -12,5 +12,15 @@ router.post('/register', upload.single('profilePic'), register);
 router.post('/login', login);
 router.post('/logout', logout);
 router.get('/check-auth', authMiddleware, checkAuth);
+
+router.put(
+  '/profile',
+  authMiddleware,
+  upload.fields([
+    { name: 'profilePic', maxCount: 1 },
+    { name: 'shopImage', maxCount: 1 },
+  ]),
+  updateProfile
+);
 
 export default router;

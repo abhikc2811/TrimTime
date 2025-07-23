@@ -5,7 +5,7 @@ import { FaPlus, FaMinus } from "react-icons/fa";
 const BarberBookingModal = ({ show, onClose, barber }) => {
   if (!show || !barber) return null;
 
-  const { imgSrc, barberShopName, rating, location, services } = barber;
+  const { imgSrc, shopName, rating, location, services } = barber;
   const [selectedServices, setSelectedServices] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
 
@@ -52,12 +52,12 @@ const BarberBookingModal = ({ show, onClose, barber }) => {
               <div className="d-flex mb-4">
                 <img
                   src={imgSrc}
-                  alt={barberShopName}
+                  alt={shopName}
                   className="rounded-circle me-3"
                   style={{ width: "80px", height: "80px", objectFit: "cover" }}
                 />
                 <div>
-                  <h5>{barberShopName}</h5>
+                  <h5>{shopName}</h5>
                   <p className="mb-1">
                     Rating: {rating} <RatingStars rating={rating} />
                   </p>

@@ -1,71 +1,68 @@
 import React, { useState, useEffect } from 'react';
-import { useAuthStore } from '../store/useAuthStore'; // your zustand store
+import { useAuthStore } from '../store/useAuthStore';
 
 const Dashboard = () => {
-  const user = useAuthStore(state => state.user);
-  const role = useAuthStore(state => state.role);
-  const loading = useAuthStore(state => state.loading);
-  const error = useAuthStore(state => state.error);
+  const user = useAuthStore((state) => state.user);
+  const loading = useAuthStore((state) => state.loading);
+  const error = useAuthStore((state) => state.error);
+
+  const updateProfile = useAuthStore((state) => state.updateProfile);
 
   const [userData, setUserData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null); 
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   useEffect(() => {
-    // When user updates in store, set it locally for editing
     if (user) {
       setUserData(user);
+      setPreviewUrl(user.profilePic);
     }
   }, [user]);
 
   const handleEditToggle = async () => {
     if (isEditing && userData) {
       try {
-        const response = await fetch(`http://localhost:3001/customers/${userData.id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(userData),
+        const formData = new FormData();
+        ['name', 'mobile', 'location', 'email'].forEach((field) => {
+          if (userData[field] !== undefined) {
+            formData.append(field, userData[field]);
+          }
         });
 
-        if (!response.ok) {
-          throw new Error('Failed to update customer data.');
+        if (selectedFile) {
+          formData.append('profilePic', selectedFile);
         }
 
-        const updatedData = await response.json();
-        setUserData(updatedData);
+        const updated = await updateProfile(formData);
+        setUserData(updated);
+        setPreviewUrl(updated.profilePic);
+        setSelectedFile(null);
         alert('Profile updated successfully!');
       } catch (err) {
         console.error('Error updating profile:', err);
         alert('An error occurred while updating the profile.');
       }
     }
-    setIsEditing(!isEditing);
+    setIsEditing((prev) => !prev);
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setUserData(prev => ({
+    setUserData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
   const handleImageChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const fileReader = new FileReader();
-      fileReader.onload = (event) => {
-        setUserData(prev => ({
-          ...prev,
-          profileImage: event.target.result,
-        }));
-      };
-      fileReader.readAsDataURL(e.target.files[0]);
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
   if (!userData) return <p>No user data found. Please login.</p>;
 
   return (
@@ -73,8 +70,10 @@ const Dashboard = () => {
       <div className="card shadow p-4">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h1 className="h3">Welcome, {userData.name}!</h1>
-          <button className="btn btn-primary" onClick={handleEditToggle}>
-            {isEditing ? 'Save' : 'Edit'}
+          <button className="btn btn-primary" onClick={handleEditToggle} disabled={loading}>
+            {loading
+              ? (isEditing ? 'Saving…' : 'Loading…')
+              : (isEditing ? 'Save' : 'Edit')}
           </button>
         </div>
         <div className="row">
@@ -82,8 +81,7 @@ const Dashboard = () => {
             <div className="position-relative">
               <img
                 src={
-                  userData.profileImage ||
-                  "https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png"
+                  previewUrl || 'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png'
                 }
                 alt="Profile"
                 className="img-fluid rounded-circle mb-3"
@@ -102,68 +100,27 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="col-md-8">
-            <div className="mb-3">
-              <label className="form-label text-dark fw-bold">Name:</label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  className="form-control"
-                  name="name"
-                  value={userData.name || ''}
-                  onChange={handleChange}
-                />
-              ) : (
-                <p className="form-control-plaintext text-secondary">{userData.name}</p>
-              )}
-            </div>
-
-            <div className="mb-3">
-              <label className="form-label text-dark fw-bold">Mobile:</label>
-              {isEditing ? (
-                <input
-                  type="tel"
-                  className="form-control"
-                  name="mobile"
-                  value={userData.mobile || ''}
-                  onchange={handleChange}
-                />
-              ) : (
-                <p className="form-control-plaintext text-secondary">{userData.mobile}</p>
-              )}
-            </div>
-
-            <div className="mb-3">
-              <label className="form-label text-dark fw-bold">Email:</label>
-              {isEditing ? (
-                <input
-                  type="email"
-                  className="form-control"
-                  name="email"
-                  value={userData.email || ''}
-                  onChange={handleChange}
-                  disabled 
-                />
-              ) : (
-                <p className="form-control-plaintext text-secondary">{userData.email}</p>
-              )}
-            </div>
-
-            <div className="mb-3">
-              <label className="form-label text-dark fw-bold">Location:</label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  className="form-control"
-                  name="location"
-                  value={userData.location || ''}
-                  onChange={handleChange}
-                />
-              ) : (
-                <p className="form-control-plaintext text-secondary">
-                  {userData.location || 'Not provided'}
-                </p>
-              )}
-            </div>
+            {['name', 'mobile', 'email', 'location'].map((field) => (
+              <div className="mb-3" key={field}>
+                <label className="form-label text-dark fw-bold">
+                  {field.charAt(0).toUpperCase() + field.slice(1)}:
+                </label>
+                {isEditing ? (
+                  <input
+                    type={field === 'email' ? 'email' : field === 'mobile' ? 'tel' : 'text'}
+                    className="form-control"
+                    name={field}
+                    value={userData[field] || ''}
+                    onChange={handleChange}
+                    {...(field === 'email' ? { readOnly: true } : {})}
+                  />
+                ) : (
+                  <p className="form-control-plaintext text-secondary">
+                    {userData[field] || (field === 'location' ? 'Not provided' : '')}
+                  </p>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </div>

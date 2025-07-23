@@ -1,295 +1,196 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuthStore } from '../store/useAuthStore';
 
 const BDashboard = () => {
-  const location = useLocation();
-  const { user } = useAuth();
-  const [isEditing, setIsEditing] = useState(false);
-  const [shopImage, setShopImage] = useState(null);
-  const [barberId, setBarberId] = useState(null);
+  const user = useAuthStore((s) => s.user);
+  const loading = useAuthStore((s) => s.loading);
+  const error = useAuthStore((s) => s.error);
+  const updateProfile = useAuthStore((s) => s.updateProfile);
+
   const [userData, setUserData] = useState(null);
-  const [services, setServices] = useState([{ name: '', price: '' }]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [services, setServices] = useState([]);
+  const [profileFile, setProfileFile] = useState(null);
+  const [shopFile, setShopFile] = useState(null);
+  const [previewProfile, setPreviewProfile] = useState(null);
+  const [previewShop, setPreviewShop] = useState(null);
 
   useEffect(() => {
-    const fetchBarberData = async () => {
-      try {
-        if (user) {
-          const response = await fetch(`http://localhost:3001/barbers?mobile=${user.mobile}`);
-          if (!response.ok) {
-            throw new Error('Failed to fetch barber data.');
-          }
-          const [barberData] = await response.json();
-          setUserData(barberData || location.state);
-          if (barberData?.services) {
-            setServices(barberData.services);
-          }
-        } else if (location.state) {
-          setUserData(location.state);
-          if (location.state?.services) {
-            setServices(location.state.services);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching barber data:', error);
-      }
-    };
-
-    fetchBarberData();
-  }, [user, location.state]);
+    if (user) {
+      setUserData(user);
+      setServices(user.services || []);
+      setPreviewProfile(user.profilePic || '');
+      setPreviewShop(user.shopImage || '');
+    }
+  }, [user]);
 
   const handleEditToggle = async () => {
     if (isEditing && userData) {
       try {
-        const updatedData = { 
-          ...userData, 
-          services: services.map((service) => ({
-            name: service.name.trim(),
-            price: parseFloat(service.price) || 0,
-          }))
-        };
-  
-        const response = await fetch(`http://localhost:3001/barbers/${userData.id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(updatedData),
+        const formData = new FormData();
+        ['name', 'mobile', 'shopName', 'location', 'email'].forEach((f) => {
+          if (userData[f] != null) formData.append(f, userData[f]);
         });
-  
-        if (!response.ok) {
-          throw new Error('Failed to update profile.');
-        }
-  
-        const updatedDataResponse = await response.json();
-        setUserData(updatedDataResponse); // Update local state with the response
+        formData.append('services', JSON.stringify(services));
+        if (profileFile) formData.append('profilePic', profileFile);
+        if (shopFile) formData.append('shopImage', shopFile);
+
+        const updated = await updateProfile(formData);
+        setUserData(updated);
+        setServices(updated.services || []);
+        setPreviewProfile(updated.profilePic);
+        setPreviewShop(updated.shopImage);
+        setProfileFile(null);
+        setShopFile(null);
         alert('Profile updated successfully!');
-      } catch (error) {
-        console.error('Error updating profile:', error);
-        alert('An error occurred while updating the profile.');
+      } catch (e) {
+        console.error('Error updating profile:', e);
+        alert('Error updating profile');
       }
     }
-    setIsEditing(!isEditing);
-  };
-  
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUserData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setIsEditing((p) => !p);
   };
 
-  const handleServiceChange = (index, field, value) => {
-    const updatedServices = [...services];
-    updatedServices[index][field] = value;
-    setServices(updatedServices);
+  const handleChange = ({ target: { name, value } }) =>
+    setUserData((p) => ({ ...p, [name]: value }));
+
+  const handleServiceChange = (i, field, val) => {
+    const copy = [...services];
+    copy[i][field] = val;
+    setServices(copy);
   };
 
-  const addService = () => {
-    setServices([...services, { name: '', price: '' }]);
-  };
+  const addService = () => setServices([...services, { name: '', price: '' }]);
+  const removeService = (i) => setServices(services.filter((_, idx) => idx !== i));
 
-  const removeService = (index) => {
-    const updatedServices = services.filter((_, i) => i !== index);
-    setServices(updatedServices);
-  };
-
-  const handleImageChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const fileReader = new FileReader();
-      fileReader.onload = (event) => {
-        setUserData((prevData) => ({
-          ...prevData,
-          profileImage: event.target.result,
-        }));
-      };
-      fileReader.readAsDataURL(e.target.files[0]);
-    }
-  };
-
-  const handleShopImageChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const fileReader = new FileReader();
-      fileReader.onload = (event) => {
-        setUserData((prevData) => ({
-          ...prevData,
-          shopImage: event.target.result,
-        }));
-      };
-      fileReader.readAsDataURL(e.target.files[0]);
+  const handleFile = (e, isShop) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    if (isShop) {
+      setShopFile(file);
+      setPreviewShop(url);
+    } else {
+      setProfileFile(file);
+      setPreviewProfile(url);
     }
   };
 
   return (
     <div className="container my-3">
       <div className="card shadow p-4">
+        {error && <div className="alert alert-danger">{error}</div>}
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h1 className="h3">Welcome, {userData?.name || 'Guest'}!</h1>
-          <button className="btn btn-primary" onClick={handleEditToggle}>
-            {isEditing ? 'Save' : 'Edit'}
+          <button
+            className="btn btn-primary"
+            onClick={handleEditToggle}
+            disabled={loading}
+          >
+            {loading
+              ? isEditing
+                ? 'Saving…'
+                : 'Loading…'
+              : isEditing
+              ? 'Save'
+              : 'Edit'}
           </button>
         </div>
         <div className="row">
+          {/* Images */}
           <div className="col-md-4 text-center">
-            <div className="position-relative">
-              <img
-                src={userData?.profileImage || 'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png'}
-                alt="Profile"
-                className="img-fluid rounded-circle mb-3"
-                style={{ width: '150px', height: '150px', border: '2px solid #ddd' }}
+            <img
+              src={
+                previewProfile ||
+                'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png'
+              }
+              alt="Profile"
+              className="rounded-circle mb-3"
+              style={{ width: 150, height: 150, border: '2px solid #ddd' }}
+            />
+            {isEditing && (
+              <input
+                type="file"
+                className="form-control mb-2"
+                accept="image/*"
+                onChange={(e) => handleFile(e, false)}
               />
-              {isEditing && (
-                <div className="mt-2">
-                  <input
-                    type="file"
-                    className="form-control"
-                    onChange={handleImageChange}
-                  />
-                </div>
-              )}
-            </div>
+            )}
+            <img
+              src={previewShop || ''}
+              alt="Shop"
+              className="img-fluid mb-3"
+              style={{ border: '2px solid #ddd' }}
+            />
+            {isEditing && (
+              <input
+                type="file"
+                className="form-control"
+                accept="image/*"
+                onChange={(e) => handleFile(e, true)}
+              />
+            )}
           </div>
+          {/* Details & Services */}
           <div className="col-md-8">
-            {/* Existing Fields */}
+            {['name', 'mobile', 'shopName', 'location', 'email'].map((field) => (
+              <div className="mb-3" key={field}>
+                <label className="fw-bold text-dark">
+                  {field.charAt(0).toUpperCase() + field.slice(1)}:
+                </label>
+                {isEditing ? (
+                  <input
+                    type={field === 'email' ? 'email' : 'text'}
+                    className="form-control"
+                    name={field}
+                    value={userData?.[field] || ''}
+                    onChange={handleChange}
+                    readOnly={field === 'email'}
+                  />
+                ) : (
+                  <p className="form-control-plaintext text-secondary">
+                    {userData?.[field] || ''}
+                  </p>
+                )}
+              </div>
+            ))}
             <div className="mb-3">
-              <label className="form-label text-dark fw-bold">Name:</label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  className="form-control"
-                  name="name"
-                  value={userData?.name || ''}
-                  onChange={handleChange}
-                />
-              ) : (
-                <p className="form-control-plaintext text-secondary">
-                  {userData?.name || ''}
-                </p>
-              )}
-            </div>
-            <div className="mb-3">
-              <label className="form-label text-dark fw-bold">Mobile:</label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  className="form-control"
-                  name="mobile"
-                  value={userData?.mobile || ''}
-                  onChange={handleChange}
-                />
-              ) : (
-                <p className="form-control-plaintext text-secondary">
-                  {userData?.mobile || ''}
-                </p>
-              )}
-            </div>
-            <div className="mb-3">
-              <label className="form-label text-dark fw-bold">Barber Shop Name:</label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  className="form-control"
-                  name="barberShopName"
-                  value={userData?.barberShopName || ''}
-                  onChange={handleChange}
-                />
-              ) : (
-                <p className="form-control-plaintext text-secondary">
-                  {userData?.barberShopName || ''}
-                </p>
-              )}
-            </div>
-            <div className="mb-3">
-              <label className="form-label text-dark fw-bold">Location:</label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  className="form-control"
-                  name="location"
-                  value={userData?.location || ''}
-                  onChange={handleChange}
-                />
-              ) : (
-                <p className="form-control-plaintext text-secondary">
-                  {userData?.location || ''}
-                </p>
-              )}
-            </div>
-            <div className="mb-3">
-              <label className="form-label text-dark fw-bold">Email:</label>
-              {isEditing ? (
-                <input
-                  type="email"
-                  className="form-control"
-                  name="email"
-                  value={userData?.email || ''}
-                  onChange={handleChange}
-                />
-              ) : (
-                <p className="form-control-plaintext text-secondary">
-                  {userData?.email || ''}
-                </p>
-              )}
-            </div>
-            {/* Service Fields */}
-            <div className="mb-3">
-              <label className="form-label text-dark fw-bold">Services:</label>
-              {services.map((service, index) => (
-                <div key={index} className="d-flex align-items-center mb-2">
+              <label className="fw-bold text-dark">Services:</label>
+              {services.map((s, i) => (
+                <div className="d-flex align-items-center mb-2" key={i}>
                   {isEditing ? (
                     <>
                       <input
-                        type="text"
                         className="form-control me-2"
-                        placeholder="Service Name"
-                        value={service.name}
-                        onChange={(e) =>
-                          handleServiceChange(index, 'name', e.target.value)
-                        }
+                        placeholder="Name"
+                        value={s.name}
+                        onChange={(e) => handleServiceChange(i, 'name', e.target.value)}
                       />
                       <input
-                        type="text"
                         className="form-control me-2"
                         placeholder="Price"
-                        value={service.price}
-                        onChange={(e) =>
-                          handleServiceChange(index, 'price', e.target.value)
-                        }
+                        value={s.price}
+                        onChange={(e) => handleServiceChange(i, 'price', e.target.value)}
                       />
                       <button
                         className="btn btn-danger"
-                        onClick={() => removeService(index)}
+                        onClick={() => removeService(i)}
                       >
                         Remove
                       </button>
                     </>
                   ) : (
                     <p className="form-control-plaintext text-secondary">
-                      {service.name} - ₹{service.price}
+                      {s.name} – ₹{s.price}
                     </p>
                   )}
                 </div>
               ))}
               {isEditing && (
-                <button className="btn btn-success mt-2" onClick={addService}>
-                  + Add
+                <button className="btn btn-success" onClick={addService}>
+                  + Add Service
                 </button>
               )}
-            </div>
-
-            <div className="mb-3">
-              <label className="form-label text-dark fw-bold">Shop Image:</label>
-              {isEditing && (
-                <input
-                  type="file"
-                  className="form-control"
-                  onChange={handleShopImageChange}
-                />
-              )}
-              <p className="mt-2">
-                {userData?.shopImage ? 'Shop image has been uploaded.' : 'No shop image uploaded.'}
-              </p>
             </div>
           </div>
         </div>

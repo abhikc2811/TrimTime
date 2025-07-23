@@ -1,11 +1,9 @@
 import express from 'express';
-import multer from 'multer';
-import { updateProfile } from '../controllers/customer.controller.js';
-import authMiddleware from '../middleware/auth.middleware.js';
+
+import { searchBarbers } from '../controllers/customer.controller.js';
 
 const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage() });
 
-router.put('/update', authMiddleware, upload.single('profilePic'), updateProfile);
+router.get('/search', searchBarbers);
 
 export default router;

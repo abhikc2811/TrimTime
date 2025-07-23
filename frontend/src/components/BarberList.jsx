@@ -18,7 +18,7 @@ const BarberList = () => {
         <BarberCard
           key={barber.id}
           imgSrc={barber.shopImage}
-          barberShopName={barber.barberShopName}
+          shopName={barber.shopName}
           location={barber.location}
           services={barber.services}
           rating={barber.rating || 0} 

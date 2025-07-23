@@ -15,6 +15,7 @@ export const useAuthStore = create((set, get) => ({
   setError: (message) => set({ error: message }),
   setEmail: (email) => set({ email }),
   setRole: (role) => set({ role }),
+  setUser: (user) => set({user}),
 
   sendOtp: async () => {
     const { email, role } = get();
@@ -50,13 +51,13 @@ export const useAuthStore = create((set, get) => ({
     try {
       const data = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
-        if (value != null) {
-          data.append(key, value);
-        }
+        if (key === 'profileFile') return;
+        if (value != null) data.append(key, value);
       });
-      const response = await axiosInstance.post('/auth/register', data, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      if (formData.profileFile) {
+        data.append('profilePic', formData.profileFile);
+      }
+      const response = await axiosInstance.post('/auth/register', data);
       set({ role: response.data.role });
       await get().checkAuth();
     } catch (err) {
@@ -100,5 +101,22 @@ export const useAuthStore = create((set, get) => ({
     } finally {
       set({ loading: false });
     }
-  }
+  },
+
+  updateProfile: async (formData) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.put('/auth/profile', formData);
+      const updatedUser = response.data.user;
+      const newRole = response.data.role || get().role;
+      updatedUser.role = newRole;
+      set({ user: updatedUser, role: newRole });
+      return updatedUser;
+    } catch (err) {
+      set({ error: err.response?.data?.message || err.message });
+      throw err;
+    } finally {
+      set({ loading: false });
+    }
+  },
 }));

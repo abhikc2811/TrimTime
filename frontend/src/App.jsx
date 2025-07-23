@@ -1,23 +1,21 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useEffect } from 'react';
 import HomePage from './pages/HomePage'; 
-import UserDashboard from './pages/UserDashboard';
-import BarberDashboard from './pages/BarberDashboard';
+import DashboardLayout from './pages/DashboardLayout';
 import SignupPage from './pages/SignupPage';
 import SendOtp from './pages/SendOtp';
 import UserProfile from './pages/UserProfile';
-import MyAppointments from './pages/MyAppointmnts';
+import AppointmentPage from './pages/AppointmntPage';
 import PaymentHistory from './pages/PaymentHistory';
 import Feedback from './pages/Feedback';
 import Dashboard from './pages/Dashboard';
 import BDashboard from './pages/BDashboard';
-import BarberAppointment from './pages/BarberAppointment';
 import Reviews from './pages/Reviews';
 import SearchResults from './pages/SearchResult';
 import { useAuthStore } from './store/useAuthStore';
 
 function App() {
-  const { user, checkAuth } = useAuthStore();
+  const { checkAuth } = useAuthStore();
 
   useEffect(() => {
     checkAuth();
@@ -35,17 +33,17 @@ function App() {
         <Route path="/search" element={<SearchResults />} />
 
         {/* Conditionally rendered nested customer routes */}
-        <Route path="/Customer" element={<UserDashboard />}>
+        <Route path="/Customer" element={<DashboardLayout />}>
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="appointments" element={<MyAppointments />} />
+          <Route path="appointments" element={<AppointmentPage />} />
           <Route path="paymenthistory" element={<PaymentHistory />} />
           <Route path="feedback" element={<Feedback />} />
         </Route>
 
         {/* Conditionally rendered nested barber routes */}
-        <Route path="/Barber" element={<BarberDashboard />}>
+        <Route path="/Barber" element={<DashboardLayout />}>
           <Route path="dashboard" element={<BDashboard />} />
-          <Route path="getMyAppointments" element={<BarberAppointment />} />
+          <Route path="appointments" element={<AppointmentPage />} />
           <Route path="showMyReviews" element={<Reviews />} />
           <Route path="feedback" element={<Feedback />} />
         </Route>
